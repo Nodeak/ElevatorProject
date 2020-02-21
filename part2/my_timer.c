@@ -61,7 +61,7 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
     if (first){
         first = 0;
     } else {
-        elapsedTime = timespec_sub(lastTime, currentTime);
+        elapsedTime = timespec_sub(currentTime, lastTime);
         sprintf(elapMsg, "Elapsed time: %ld.%09ld\n", elapsedTime.tv_sec, elapsedTime.tv_nsec);
         strcat(msg, elapMsg);
     }
