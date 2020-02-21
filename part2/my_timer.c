@@ -49,6 +49,8 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
 {
 	printk(KERN_INFO "proc_read called\n");
 
+
+
     msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
     elapMsg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
 
@@ -56,11 +58,15 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
 
     sprintf(msg, "Current time: %ld.%09ld\n", currentTime.tv_sec, currentTime.tv_nsec);
 
-    if (!first){
+    if (first){
+        first = 0;
+    } else {
         elapsedTime = timespec_sub(lastTime, currentTime);
         sprintf(elapMsg, "Elapsed time: %ld.%09ld\n", elapsedTime.tv_sec, elapsedTime.tv_nsec);
         strcat(msg, elapMsg);
     }
+
+
     
     lastTime = currentTime;
 
