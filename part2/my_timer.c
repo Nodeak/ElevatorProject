@@ -4,6 +4,9 @@
 #include <linux/proc_fs.h> //file system calls
 #include <linux/uaccess.h> //memory copy from kernel <-> userspace
 #include <linux/time.h> //for timespec
+#include <linux/slab.h> // memory allocation functions
+#include <linux/uaccess.h> .
+#include <linux/string.h> 
 
 MODULE_LICENSE("Dual BSD/GPL");
 
