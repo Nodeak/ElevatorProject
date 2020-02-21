@@ -1,8 +1,9 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
-#include <linux/proc_fs.v> //file system calls
+#include <linux/proc_fs.h> //file system calls
 #include <linux/uaccess.h> //memory copy from kernel <-> userspace
+#include <linux/time.h> //for timespec
 
 MODULE_LICENSE("Dual BSD/GPL");
 
@@ -10,10 +11,7 @@ MODULE_LICENSE("Dual BSD/GPL");
 #define MAX_STRING 256
 static struct proc_dir_entry* proc_entry; //pointer to proc entry
 
-static struct file_operations fileOps = {
-    .owner = THIS_MODULE;
-    .read = proc_read;
-};
+
 
 // static char msg[BUF_LEN]; //buffer to store read/write message
 static int procfs_buf_len; //variable to hold length of message
@@ -35,9 +33,9 @@ check if it is first time, if not, also print elapsed time
 
 */
 
-struct timespec current;
-struct timespec last;
-struct timespec elapsed;
+struct timespec currentTime;
+struct timespec lastTime;
+struct timespec elapsedTime;
 static char* msg;
 static char* elapMsg;
 
@@ -51,17 +49,17 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
     msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | _GFP_IO | _GFP_FS);
     elapMsg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | _GFP_IO | _GFP_FS);
 
-    current = current_kernel_time();
+    currentTime = current_kernel_time();
 
-    sprintf(msg, "Current time: %ld.%09ld\n", current.tv_sec, current.tv_nsec);
+    sprintf(msg, "Current time: %ld.%09ld\n", currentTime.tv_sec, currentTime.tv_nsec);
 
     if (!first){
-        elapsed = timespec_sub(last, current);
-        sprintf(elapMsg, "Elapsed time: %%ld.%09ld\n", elapsed.tv_sec, elapsed.tv_nsec);
+        elapsedTime = timespec_sub(last, current);
+        sprintf(elapMsg, "Elapsed time: %%ld.%09ld\n", elapsedTime.tv_sec, elapsedTime.tv_nsec);
         strcat(msg, elapMsg);
     }
     
-    last = current;
+    lastTime = currentTime;
 
     procfs_buf_len = strlen(msg);
     if (*ppos > 0 || count < procfs_buf_len)    //check if data already read and if space in user buffer
@@ -76,6 +74,11 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
     
     return procfs_buf_len;     //return number of characters read
 }
+
+static struct file_operations fileOps = {
+    .owner = THIS_MODULE,
+    .read = proc_read,
+};
 
 static int timer_init(void)
 {
@@ -104,6 +107,8 @@ static void timer_exit(void)
 
     return;
 }
+
+
 
 module_init(timer_init);
 module_exit(timer_exit);
