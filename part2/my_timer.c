@@ -55,7 +55,6 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         return -EFAULT;
     
     *ppos = procfs_buf_len; //update position
-`
     printk(KERN_INFO "Sent to user %s\n", msg);
     
     return procfs_buf_len;     //return number of characters read
