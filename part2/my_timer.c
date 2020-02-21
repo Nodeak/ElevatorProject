@@ -5,7 +5,7 @@
 #include <linux/uaccess.h> //memory copy from kernel <-> userspace
 #include <linux/time.h> //for timespec
 #include <linux/slab.h> // memory allocation functions
-#include <linux/uaccess.h> .
+#include <linux/uaccess.h>
 #include <linux/string.h> 
 
 MODULE_LICENSE("Dual BSD/GPL");
@@ -49,15 +49,15 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
 {
 	printk(KERN_INFO "proc_read called\n");
 
-    msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | _GFP_IO | _GFP_FS);
-    elapMsg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | _GFP_IO | _GFP_FS);
+    msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
+    elapMsg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
 
     currentTime = current_kernel_time();
 
     sprintf(msg, "Current time: %ld.%09ld\n", currentTime.tv_sec, currentTime.tv_nsec);
 
     if (!first){
-        elapsedTime = timespec_sub(last, current);
+        elapsedTime = timespec_sub(lastTime, currentTime);
         sprintf(elapMsg, "Elapsed time: %ld.%09ld\n", elapsedTime.tv_sec, elapsedTime.tv_nsec);
         strcat(msg, elapMsg);
     }
