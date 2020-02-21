@@ -7,52 +7,70 @@
 MODULE_LICENSE("Dual BSD/GPL");
 
 #define BUF_LEN 100 //max length of read/write message
+#define MAX_STRING 256
 static struct proc_dir_entry* proc_entry; //pointer to proc entry
 
 static struct file_operations fileOps = {
     .owner = THIS_MODULE;
     .read = proc_read;
-    .write = proc_write;
 };
 
-static char msg[BUF_LEN]; //buffer to store read/write message
+// static char msg[BUF_LEN]; //buffer to store read/write message
 static int procfs_buf_len; //variable to hold length of message
 
-static struct Time {
-    long seconds;
-    long nanoseconds;
-};
 
-static Time time;
+//timespec data type
 
+/*
+timespec t1;
+t1 = current_kernel_time();
+timespec elapsed = timespec_sub (t1, t2);
 
-static ssize_t proc_write(struct file *file, const char __user *ubuf,size_t count, loff_t *ppos) 
-{
-	printk(KERN_INFO "proc_write\n");
-    //write min(user message size, buffer length) characters
-    if (count > BUF_LEN)
-        procfs_buf_len = BUF_LEN;
-    else
-        procfs_buf_len = count;
-    
-    copy_from_user(msg, ubuf, procfs_buf_len);
-    printk(KERN_INFO "got from user: %s\n", msg);
-    
-    return procfs_buf_len;
-}
+sprintf() - format to string
+
+kfree - anything allocated w kmalloc
+
+in read:
+check if it is first time, if not, also print elapsed time
+
+*/
+
+struct timespec current;
+struct timespec last;
+struct timespec elapsed;
+static char* msg;
+static char* elapMsg;
+
+static int first = 1;
+
  
 static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff_t *ppos) 
 {
-	printk(KERN_INFO "proc_read\n");
-    procfs_buf_len = strlen(msg);
+	printk(KERN_INFO "proc_read called\n");
+
+    msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | _GFP_IO | _GFP_FS);
+    elapMsg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | _GFP_IO | _GFP_FS);
+
+    current = current_kernel_time();
+
+    sprintf(msg, "Current time: %ld.%09ld\n", current.tv_sec, current.tv_nsec);
+
+    if (!first){
+        elapsed = timespec_sub(last, current);
+        sprintf(elapMsg, "Elapsed time: %%ld.%09ld\n", elapsed.tv_sec, elapsed.tv_nsec);
+        strcat(msg, elapMsg);
+    }
     
+    last = current;
+
+    procfs_buf_len = strlen(msg);
     if (*ppos > 0 || count < procfs_buf_len)    //check if data already read and if space in user buffer
         return 0;
-    
+
     if (copy_to_user(ubuf, msg, procfs_buf_len))    //send data to user buffer
         return -EFAULT;
     
-    *ppos = procfs_buf_len;//update position
+    *ppos = procfs_buf_len; //update position
     
     printk(KERN_INFO "gave to user %s\n", msg);
     
@@ -61,11 +79,12 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
 
 static int timer_init(void)
 {
-    printk(KERN_ALERT "Hello, timer!\n");
+    printk(KERN_ALERT "my_timer initialized!\n");
 
     //proc_create(filename, permissions, parent, pointer to file ops)
     proc_entry = proc_create("timed", 0666, NULL, &fileOps);
 
+    //if error creating proc entry
     if (proc_entry == NULL)
         return -ENOMEM;
     
@@ -74,10 +93,35 @@ static int timer_init(void)
 
 static void timer_exit(void)
 {
-    printk(KERN_ALERT "Goodbye, timer!\n");
+    printk(KERN_ALERT "exiting my_timer!\n");
+
+    //deallocate memory
+    kfree(msg);
+    kfree(elapMsg);
+
+    //remove proc entry
     proc_remove(proc_entry);
+
     return;
 }
 
 module_init(timer_init);
 module_exit(timer_exit);
+
+
+/*
+
+part 3:
+set up kernel module
+    kernel set up - download source code
+    sys calls - modify files and add new ones
+
+hour to compile
+proc entry
+
+spawn thread in init
+up and down all
+
+linked list needs to be deallocated w kfree
+
+*/
