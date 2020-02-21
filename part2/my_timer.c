@@ -4,7 +4,7 @@
 #include <linux/proc_fs.h> //file system calls
 #include <linux/uaccess.h> //memory copy from kernel <-> userspace
 #include <linux/time.h> //for timespec
-#include <linux/slab.h> // memory allocation functions
+#include <linux/slab.h> //memory allocation functions
 #include <linux/uaccess.h>
 #include <linux/string.h> 
 
@@ -55,7 +55,7 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         return -EFAULT;
     
     *ppos = procfs_buf_len; //update position
-    
+`
     printk(KERN_INFO "Sent to user %s\n", msg);
     
     return procfs_buf_len;     //return number of characters read
@@ -82,7 +82,7 @@ static int timer_init(void)
 
 static void timer_exit(void)
 {
-    printk(KERN_ALERT "exiting my_timer!\n");
+    printk(KERN_ALERT "Exiting my_timer!\n");
 
     //deallocate memory
     kfree(msg);
@@ -94,25 +94,5 @@ static void timer_exit(void)
     return;
 }
 
-
-
 module_init(timer_init);
 module_exit(timer_exit);
-
-
-/*
-
-part 3:
-set up kernel module
-    kernel set up - download source code
-    sys calls - modify files and add new ones
-
-hour to compile
-proc entry
-
-spawn thread in init
-up and down all
-
-linked list needs to be deallocated w kfree
-
-*/
