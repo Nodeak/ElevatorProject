@@ -12,29 +12,10 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 #define BUF_LEN 100 //max length of read/write message
 #define MAX_STRING 256
+
 static struct proc_dir_entry* proc_entry; //pointer to proc entry
-
-
-
-// static char msg[BUF_LEN]; //buffer to store read/write message
 static int procfs_buf_len; //variable to hold length of message
 
-
-//timespec data type
-
-/*
-timespec t1;
-t1 = current_kernel_time();
-timespec elapsed = timespec_sub (t1, t2);
-
-sprintf() - format to string
-
-kfree - anything allocated w kmalloc
-
-in read:
-check if it is first time, if not, also print elapsed time
-
-*/
 
 struct timespec currentTime;
 struct timespec lastTime;
@@ -48,8 +29,6 @@ static int first = 1;
 static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff_t *ppos) 
 {
 	printk(KERN_INFO "proc_read called\n");
-
-
 
     msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
     elapMsg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
@@ -65,8 +44,6 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         sprintf(elapMsg, "Elapsed time: %ld.%09ld\n", elapsedTime.tv_sec, elapsedTime.tv_nsec);
         strcat(msg, elapMsg);
     }
-
-
     
     lastTime = currentTime;
 
@@ -79,7 +56,7 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
     
     *ppos = procfs_buf_len; //update position
     
-    printk(KERN_INFO "gave to user %s\n", msg);
+    printk(KERN_INFO "Sent to user %s\n", msg);
     
     return procfs_buf_len;     //return number of characters read
 }
