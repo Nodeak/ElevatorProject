@@ -1,5 +1,11 @@
-obj-m += my_timer.o
-all:
-	make -C /lib/modules/3.10.0-1062.9.1.el7.x86_64/build M=/usr/src/my_timer modules
+ifneq ($(KERNELRELEASE),)
+	obj-m := my_timer.o
+else
+	KERNELDIR ?= /lib/modules/$(shell uname -r)/build/
+	PWD := $(shell pwd)
+default:
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+endif
+
 clean:
-	make -C /lib/modules/3.10.0-1062.9.1.el7.x86_64/build M=/usr/src/my_timer clean
+	rm -f *.ko *.o Module* *mod*
