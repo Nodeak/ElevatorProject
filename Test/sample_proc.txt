@@ -1,0 +1,20 @@
+Elevator state: UP
+Elevator animals: dog
+Current floor: 4
+Number of passengers: 6
+Current weight: 14
+Number of passengers waiting: 34
+Number passengers serviced: 43
+
+
+[ ] Floor 10:  11   | o o o | x x x | o o 
+[ ] Floor  9:   0   
+[ ] Floor  8:   5   | o | x x 
+[ ] Floor  7:   0   
+[ ] Floor  6:   0   
+[ ] Floor  5:   0   
+[*] Floor  4:   8   | x x x | x x x 
+[ ] Floor  3:  10   | x | x x x | x x x 
+[ ] Floor  2:   0   
+[ ] Floor  1:   0
+
