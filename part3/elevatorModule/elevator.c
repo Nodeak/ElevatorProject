@@ -105,7 +105,7 @@ void checkLoad(int floor){
 
     while(loading){
         // Check first person
-        curr_passenger = list_first_entry(floor_temp, Person, list);
+        curr_passenger = list_first_entry(&(floors[floor-1]), Person, list);
         if (curr_passenger.weight + elev_weight <= 15 && (curr_passenger.pet_type == animal_type | curr_passenger.pet_type == NONE)){
             //If can load,
                 // Add Person to elev_passengers
