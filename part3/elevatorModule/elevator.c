@@ -100,7 +100,7 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 
 /* In house functions */
 
-int runElevator(){
+int runElevator(void){
     while(!kthread_should_stop()){
         int check_floors = checkFloors();
         
