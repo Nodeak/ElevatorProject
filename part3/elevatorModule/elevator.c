@@ -24,7 +24,7 @@ struct Person{
     struct list_head list;
     int floor_dest;
     int pet_type;
-    int num_pets;
+    int group_size;
     int weight;
 }
 
@@ -49,7 +49,6 @@ static int elev_state;
 static int current_floor;
 static int elev_weight;
 static int num_passengers;
-static int num_animals;
 static int animal_type;
 static int num_waiting;
 static int num_serviced;
@@ -67,7 +66,6 @@ long start_elevator(void) {
     current_floor = 1;
 
     animal_type = NONE;
-    num_animals = 0;
     num_waiting = 0;
     num_serviced = 0;
     
@@ -155,27 +153,21 @@ void checkLoad(int floor){
 
 void checkUnload(int floor){
 
-}
-
-
-
-
-void checkUnload(int floor){
-
     //temporary pointers
     struct list_head *temp;
     struct list_head *dummy;
     Person* passenger;
-    list_for_each(temp, dummy, &elev_passengers) { 
+
+    // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
+    list_for_each(temp, dummy, &elev_passengers) {
         passenger = list_entry(temp, Person, list);
-        //can access item→num
         // Unloads passengers from the elevator
         if(passenger->floor_dest == current_floor){
-            elev_weight = elev_weight - passenger->weight;      // Remove weight from elevator
-            num_animals = num_animals - passenger->num_pets;    // Remove animals from elevator
-            list_del(temp);     // Remove from linked list
-            kfree(passenger);   // Deallocate passenger
-            num_serviced++;
+            elev_weight = elev_weight - passenger->weight;              // Remove weight from elevator
+            num_passengers = num_passengers - passenger->group_size;    // Remove passengers from elevator
+            num_serviced = num_serviced + passenger->group_size;        // Includes pets also
+            list_del(temp);                                             // Remove from linked list
+            kfree(passenger);                                           // Deallocate passenger
         }
     }  
     // Allow any passenger w/ any pet type to get on next checkLoad
