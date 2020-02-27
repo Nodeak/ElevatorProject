@@ -155,7 +155,7 @@ void checkUnload(int floor){
 int checkFloors(void){
     int i;
     for(i = 0; i < 10; i++){
-        if(list_empty(floors[i] != 0){
+        if(list_empty(floors[i]) != 0{
             return i;
         }
     }
