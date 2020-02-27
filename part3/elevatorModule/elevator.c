@@ -18,6 +18,8 @@
 #include <linux/slab.h>     // Memory allocation functions
 #include <linux/printk.h>   // printk() - prints to Kernel
 #include <linux/list.h>     // Linked lists
+#include <linux/string.h> 
+
 MODULE_LICENSE("GPL");
 
 
@@ -93,12 +95,13 @@ Number passengers serviced: 61
 
 static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff_t *ppos) 
 {
-	printk(KERN_INFO "proc_read called\n");
+    char * state;
+    char * ani_type;
+    printk(KERN_INFO "proc_read called\n");
 
     msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
 
-    char * state;
-    char * ani_type;
+   
     if (elev_state == IDLE){
         state = "IDLE";
     } else if (elev_state == OFFLINE){
@@ -119,8 +122,7 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         ani_type = "none";
     }
 
-    sprintf(msg, "Elevator State: %s\nElevator Animals: %s\nCurrent Floor: %d\nNumber of Passengers: %d\n
-        Current Weight: %d\nNumber of Passengers Waiting: %d\nNumber of Passengers Serviced: %d\n", 
+    sprintf(msg, "Elevator State: %s\nElevator Animals: %s\nCurrent Floor: %d\nNumber of Passengers: %d\nCurrent Weight: %d\nNumber of Passengers Waiting: %d\nNumber of Passengers Serviced: %d\n",
         state, ani_type, current_floor, num_passengers, elev_weight, num_waiting, num_serviced);
 
     //ADD FLOOR INFO HERE
