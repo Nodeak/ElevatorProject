@@ -98,14 +98,12 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 }
 
 void checkLoad(int floor){
-    struct list_head * temp;
     struct Person * curr_passenger;
-    struct list_head * floor_temp = &floors[floor-1];
     bool loading = true;
 
     while(loading){
         // Check first person
-        curr_passenger = list_first_entry(&(floors[floor-1]), Person, list);
+        curr_passenger = list_first_entry(&floors[floor-1], struct Person, list);
         if (curr_passenger.weight + elev_weight <= 15 && (curr_passenger.pet_type == animal_type | curr_passenger.pet_type == NONE)){
             //If can load,
                 // Add Person to elev_passengers
