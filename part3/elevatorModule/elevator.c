@@ -28,7 +28,7 @@ struct Person{
     struct list_head list;
     int floor_dest;
     int pet_type;
-    int num_pets;
+    int group_size;
     int weight;
 }
 
@@ -53,7 +53,6 @@ static int elev_state;
 static int current_floor;
 static int elev_weight;
 static int num_passengers;
-static int num_animals;
 static int animal_type;
 static int num_waiting;
 static int num_serviced;
@@ -71,7 +70,6 @@ long start_elevator(void) {
     current_floor = 1;
 
     animal_type = NONE;
-    num_animals = 0;
     num_waiting = 0;
     num_serviced = 0;
     
@@ -158,8 +156,18 @@ void checkLoad(int floor){
             loading = false;
         }
     }
+<<<<<<< HEAD
 }
 
+=======
+
+    // Person curr_passenger = list_first_entry(floors[floor-1]);
+    // if (curr_passenger.weight + elev_weight <= 15 && curr_passenger.pet_type == animal_type){
+    //     //load onto elevator (put into elev_passengers)
+    //     //delete Person from floors[floor-1]
+    // }
+}
+>>>>>>> 29b7cffbb601afb84221555ae6816a3244d4ff3f
 
 void checkUnload(int floor){
 
@@ -167,16 +175,17 @@ void checkUnload(int floor){
     struct list_head *temp;
     struct list_head *dummy;
     Person* passenger;
-    list_for_each(temp, dummy, &elev_passengers) { 
+
+    // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
+    list_for_each(temp, dummy, &elev_passengers) {
         passenger = list_entry(temp, Person, list);
-        //can access item→num
         // Unloads passengers from the elevator
         if(passenger->floor_dest == current_floor){
-            elev_weight = elev_weight - passenger->weight;      // Remove weight from elevator
-            num_animals = num_animals - passenger->num_pets;    // Remove animals from elevator
-            list_del(temp);     // Remove from linked list
-            kfree(passenger);   // Deallocate passenger
-            num_serviced++;
+            elev_weight = elev_weight - passenger->weight;              // Remove weight from elevator
+            num_passengers = num_passengers - passenger->group_size;    // Remove passengers from elevator
+            num_serviced = num_serviced + passenger->group_size;        // Includes pets also
+            list_del(temp);                                             // Remove from linked list
+            kfree(passenger);                                           // Deallocate passenger
         }
     }  
     // Allow any passenger w/ any pet type to get on next checkLoad
