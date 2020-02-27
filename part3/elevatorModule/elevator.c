@@ -100,8 +100,24 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     struct Person * passenger;
     printk(KERN_NOTICE "issue_request called\nnum pets: %d\npet type: %d\nstart floor: %d\ndestination floor %d", 
         num_pets, pet_type, start_floor, destination_floor);
-    passenger = kmalloc(sizeof(struct Person), __GFP_RECLAIM);      // Makes space in kernel for a new passenger struct
-    
+    passenger = kmalloc(sizeof(struct Person), __GFP_RECLAIM);
+
+    /* Validate passengers */
+    if (start_floor < 1 | start_floor > 10){
+        return 1;
+    } 
+    if (destination_floor < 1 | destination_floor > 10){
+        return 1;
+    }
+    if (num_pets < 0 | num_pets > 3){
+        return 1;
+    }
+    if (pet_type != 1 && pet_type != 2){
+        return 1;
+    }
+
+
+    /* Create Person */
     tot_weight = 3; // Add weight of one person
     if (pet_type == CAT){
         // 1 weight unit
@@ -116,6 +132,8 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     passenger->floor_dest = destination_floor;
     passenger->pet_type = pet_type;
     passenger->group_size = num_pets + 1;
+
+    num_waiting += passenger->group_size;
 
     // Put passengers on start floor
     list_add_tail(&passenger->list, &floors[start_floor-1]);
