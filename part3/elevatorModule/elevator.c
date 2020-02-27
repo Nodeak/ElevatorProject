@@ -163,7 +163,7 @@ int checkFloors(void){
     return -1;
 }
 
-int runElevator(void){
+int runElevator(void *data){
     while(!kthread_should_stop()){
         int check_floors = checkFloors();
         
