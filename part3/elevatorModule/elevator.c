@@ -156,18 +156,8 @@ void checkLoad(int floor){
             loading = false;
         }
     }
-<<<<<<< HEAD
 }
 
-=======
-
-    // Person curr_passenger = list_first_entry(floors[floor-1]);
-    // if (curr_passenger.weight + elev_weight <= 15 && curr_passenger.pet_type == animal_type){
-    //     //load onto elevator (put into elev_passengers)
-    //     //delete Person from floors[floor-1]
-    // }
-}
->>>>>>> 29b7cffbb601afb84221555ae6816a3244d4ff3f
 
 void checkUnload(int floor){
 
