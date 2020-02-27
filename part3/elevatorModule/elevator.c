@@ -105,7 +105,6 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 /* In house functions */
 void checkLoad(int floor){
     struct Person * curr_passenger;
-    struct list_head * temp_del;
     struct Person * person_del;
     bool loading = true;
 
@@ -115,8 +114,8 @@ void checkLoad(int floor){
         if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
             //If can load,
                 // Add Person to elev_passengers
-                person_del = list_entry(temp_del, struct Person, list);
-                list_del(temp_del);
+                person_del = list_entry(&floors[floor-1], struct Person, list);
+                list_del(&floors[floor-1]);
                 list_add_tail(&curr_passenger->list, &elev_passengers);
                 // Remove from floors
 
