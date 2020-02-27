@@ -90,6 +90,7 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 
 
 
+
     return 0;
 }
 
@@ -108,6 +109,7 @@ int runElevator(){
 
         //load and/or unload passengers
 
+        check_floors = checkFloors();
         if(elev_state == UP && current_floor < 10){
             //elevator goes up
             current_floor++;
@@ -131,17 +133,21 @@ int runElevator(){
 void checkLoad(int floor){
     struct list_head * temp;
     Person * curr_passenger;
-    bool load = true;
+    bool loading = true;
 
-    list_for_each(temp, &floors[floor-1]){
+    while(loading){
+        //check first person
+        curr_passenger = list_first_entry(floors[floor-1], Person, list);
+        if (curr_passenger.weight + elev_weight <= 15 && (curr_passenger.pet_type == animal_type | curr_passenger.pet_type == NONE)){
+            //if can load,
+                //remove pointer from floors[floor]
+                list_add_tail(&curr_passenger.list, &elev_passengers);
+                //add to elev_pass
+                //deallocate from floors
 
-        curr_passenger = list_entry(temp, Person, list);
-        if (curr_passenger->weight + elev_weight <= 15 && curr_passenger->pet_type == animal_type){
-            // Load onto elevator (put into elev_passengers)
-            // Delete Person from floors[floor-1]
-            load = true;
         }
-        load = false;
+            //if cant load, set loading to false
+            
     }
 
     // Person curr_passenger = list_first_entry(floors[floor-1]);
