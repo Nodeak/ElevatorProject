@@ -110,7 +110,7 @@ void checkLoad(int floor){
         if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
             //If can load,
                 // Add Person to elev_passengers
-                person_del = list_entry(temp_del, Person, list);
+                person_del = list_entry(temp_del, struct Person, list);
                 list_del(temp_del);
                 list_add_tail(&curr_passenger->list, &elev_passengers);
                 // Remove from floors
