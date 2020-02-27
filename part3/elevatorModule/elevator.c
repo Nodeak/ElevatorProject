@@ -140,7 +140,7 @@ int runElevator(void){
 
 void checkLoad(int floor){
     struct list_head * temp;
-    Person * curr_passenger;
+    struct Person * curr_passenger;
     bool loading = true;
 
     while(loading){
@@ -149,7 +149,7 @@ void checkLoad(int floor){
         if (curr_passenger.weight + elev_weight <= 15 && (curr_passenger.pet_type == animal_type | curr_passenger.pet_type == NONE)){
             //If can load,
                 // Add Person to elev_passengers
-                list_add_tail(&curr_passenger.list, &elev_passengers);
+                list_add_tail(&curr_passenger->list, &elev_passengers);
                 // Remove from floors
                 Person person = list_entry(floors[floor-1], Person, list);
                 list_del(person);
@@ -167,7 +167,7 @@ void checkUnload(int floor){
     //temporary pointers
     struct list_head *temp;
     struct list_head *dummy;
-    Person* passenger;
+    struct Person* passenger;
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
     list_for_each(temp, dummy, &elev_passengers) {
