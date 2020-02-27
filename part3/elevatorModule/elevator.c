@@ -99,8 +99,62 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 /* In house functions */
 
 int runElevator(){
-   while(!kthread_should_stop())
-    int check_floors = checkFloors();
+    while(!kthread_should_stop()){
+        int check_floors = checkFloors();
+
+        if (elev_state == IDLE && check_floors != -1){
+            elev_state = UP;
+        }
+
+        
+
+        //load and/or unload passengers
+
+        if(elev_state == UP && current_floor < 10){
+            //elevator goes up
+            current_floor++;
+        } else if (elev_state == UP && current_floor == 10){
+            //elevator now goes down
+            elev_state = DOWN;
+            current_floor--;
+        } else if (elev_state == DOWN && current_floor > 1){
+            //elevator goes down
+            current_floor--;
+        } else if (elev_state == DOWN && current_floor == 1){
+            //elevator goes down
+            elev_state = UP;
+            current_floor++;
+        } else if (num_passengers == 0 && check_floors == -1){
+            elev_state = IDLE;
+        }
+    }
+}
+
+void checkLoad(int floor){
+    struct list_head * temp;
+    Person * curr_passenger;
+    bool load = true;
+
+    list_for_each(temp, &floors[floor-1]){
+
+        curr_passenger = list_entry(temp, Person, list);
+        if (curr_passenger->weight + elev_weight <= 15 && curr_passenger->pet_type == animal_type){
+            // Load onto elevator (put into elev_passengers)
+            // Delete Person from floors[floor-1]
+            load = true;
+        }
+        load = false;
+    }
+
+    // Person curr_passenger = list_first_entry(floors[floor-1]);
+    // if (curr_passenger.weight + elev_weight <= 15 && curr_passenger.pet_type == animal_type){
+    //     //load onto elevator (put into elev_passengers)
+    //     //delete Person from floors[floor-1]
+    // }
+}
+
+void checkUnload(int floor){
+
 }
 
 
