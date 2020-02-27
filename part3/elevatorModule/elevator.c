@@ -1,3 +1,12 @@
+/*
+* Group 13: Kaedon Hamm & Kiara Boone
+*
+* COP4610 Project 2 - Due March 8, 2020
+* Elevator Module that is to be implemented into Linux Kernel v4.19
+* 
+*/
+
+
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -12,49 +21,35 @@
 MODULE_LICENSE("GPL");
 
 
-/* #define different states as integers */
+/* Define different states as integers - eases code readability */
 #define IDLE 0
 #define UP 1
 #define DOWN 2
 #define LOADING 3
 #define OFFLINE 4
 
+/* Define animal types as integers - eases code readability */
 #define CAT 0
 #define DOG 1
 #define NONE 2
 
 /* Thread creation */
-
 struct task_struct * thread;
 
 /* Struct for Queue and ElevatorFloor */
-struct list_head floors[10];    // Array of 10 linked lists
+struct list_head floors[10];        // Array of 10 linked lists representing each floor
+struct list_head elev_passengers;   // Linked list representing elevator passengers
 
-struct Person{
-    struct list_head list;
+struct Person{                      // Hold important information about Passengers
+    struct list_head list;          // Give the struct a specific address. Needed to be used in a Linked List
     int floor_dest;
     int pet_type;
     int group_size;
     int weight;
 };
 
-struct list_head elev_passengers;
 
-
-
-/* Defining global variables 
-    Elevator Linked List,
-    Elevator State,
-    Floor Linked List,
-    Current Floor,
-    Weight,
-    Number of Passengers,
-    Number of Animals,
-    Animal Type,
-    Number of Passengers Waiting,
-    Number of Passengers Serviced
-*/
-
+/* Defining global variables */
 static int elev_state;
 static int current_floor;
 static int elev_weight;
@@ -82,12 +77,12 @@ long start_elevator(void) {
     return 0;
 }
 
+
 extern long (*STUB_stop_elevator)(void);
 long stop_elevator(void) {
     printk(KERN_NOTICE "stop_elevator called\n");
     elev_state = OFFLINE;
     // DROP REST OF PASSENGERS OFF
-
     return 0;
 }
 
@@ -102,7 +97,8 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     return 0;
 }
 
-/* In house functions */
+
+/* In-house functions */
 void checkLoad(int floor){
     struct Person * curr_passenger;
     struct Person * person_del;
