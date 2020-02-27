@@ -110,7 +110,8 @@ void checkLoad(int floor){
                 // Add Person to elev_passengers
                 list_add_tail(&curr_passenger->list, &elev_passengers);
                 // Remove from floors
-                Person person = list_entry(&floors[floor-1], Person, list);
+                temp = floors[floor-1];
+                Person person = list_entry(temp, Person, list);
                 list_del(person);
 
         } else {
