@@ -91,8 +91,24 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     printk(KERN_NOTICE "issue_request called\nnum pets: %d\npet type: %d\nstart floor: %d\ndestination floor %d", 
         num_pets, pet_type, start_floor, destination_floor);
 
+    struct Person * passenger;
+    passenger = kmalloc(sizeof(Person), __GFP_RECLAIM);
+    
+    int tot_weight = 3; // Add weight of one person
+    if (pet_type == CAT){
+        // 1 weight unit
+        tot_weight += num_pets;
+    } else if (pet_type == DOG){
+        // 2 weight units
+        tot_weight += num_pets * 2;
+    }
+    passenger->weight = tot_weight;
+    passenger->floor_dest = destination_floor;
+    passenger->pet_type = pet_type;
+    passenger->group_size = num_pets + 1;
 
-
+    // Put passengers on start floor
+    list_add_tail(&passenger->list, &floors[start_floor-1]);
 
     return 0;
 }
@@ -109,19 +125,17 @@ void checkLoad(int floor){
         curr_passenger = list_first_entry(&floors[floor-1], struct Person, list);
         if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
             //If can load,
-                // Add Person to elev_passengers
+                // Remove from floors
                 person_del = list_entry(&floors[floor-1], struct Person, list);
                 list_del(&floors[floor-1]);
+                // Add Person to elev_passengers
                 list_add_tail(&curr_passenger->list, &elev_passengers);
-                // Remove from floors
-
         } else {
             // If cant load, stop loading
             loading = false;
         }
     }
 }
-
 
 void checkUnload(int floor){
 
@@ -169,6 +183,7 @@ int runElevator(void *data){
 
         // Load and/or unload passengers
         checkLoad(current_floor);
+        checkUnload(current_floor);
 
         // Check if waiting passengers after load/unload
         check_floors = checkFloors();
