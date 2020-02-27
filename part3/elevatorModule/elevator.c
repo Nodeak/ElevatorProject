@@ -51,16 +51,17 @@ struct Person{                      // Hold important information about Passenge
 
 /* Defining global variables */
 static int elev_state;
-static int current_floor;
-static int elev_weight;
-static int num_passengers;
-static int animal_type;
+static int current_floor;       // Keeps track where elevator is at
+static int elev_weight;         // Weight includes both Person and pet
+static int num_passengers;      // Passenger count includes both Person and pets
+static int animal_type;         // Animal types can only be on elevator w/ same type
 static int num_waiting;
 static int num_serviced;
 
 
 
-/* Functions called by STUBS  */
+/* start_elevator is called when STUB_start_elevator is requested, 
+        Sets up a new elevator with its default settings */
 extern long (*STUB_start_elevator)(void);
 long start_elevator(void) {
     printk(KERN_NOTICE "start_elevator called\n");
@@ -78,6 +79,11 @@ long start_elevator(void) {
 }
 
 
+/* stop_elevator is called when STUB_stop_elevator is requested,
+        Turns the elevator state to OFFLINE, but not exit the program 
+        
+        NEEDS:
+            To drop rest of passengers still on elevator off before changing state */
 extern long (*STUB_stop_elevator)(void);
 long stop_elevator(void) {
     printk(KERN_NOTICE "stop_elevator called\n");
@@ -86,13 +92,15 @@ long stop_elevator(void) {
     return 0;
 }
 
+/* issue_request is called when STUB_issue_request is requested,
+        Creates a completed Person struct and adds them to that floor's queue */
 extern long (*STUB_issue_request)(int, int, int, int);
 long issue_request(int num_pets, int pet_type, int start_floor, int destination_floor) {
     int tot_weight;
     struct Person * passenger;
     printk(KERN_NOTICE "issue_request called\nnum pets: %d\npet type: %d\nstart floor: %d\ndestination floor %d", 
         num_pets, pet_type, start_floor, destination_floor);
-    passenger = kmalloc(sizeof(struct Person), __GFP_RECLAIM);
+    passenger = kmalloc(sizeof(struct Person), __GFP_RECLAIM);      // Makes space in kernel for a new passenger struct
     
     tot_weight = 3; // Add weight of one person
     if (pet_type == CAT){
@@ -102,6 +110,8 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
         // 2 weight units
         tot_weight += num_pets * 2;
     }
+
+    // Inserting info about Person into the struct
     passenger->weight = tot_weight;
     passenger->floor_dest = destination_floor;
     passenger->pet_type = pet_type;
@@ -137,22 +147,23 @@ void checkLoad(int floor){
     }
 }
 
+
 void checkUnload(int floor){
 
-    //temporary pointers
+    // Temporary pointers
     struct list_head *temp;
-    struct Person* passenger;
+    struct Person * passenger;
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
     list_for_each(temp, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
         // Unloads passengers from the elevator
         if(passenger->floor_dest == current_floor){
-            elev_weight = elev_weight - passenger->weight;              // Remove weight from elevator
-            num_passengers = num_passengers - passenger->group_size;    // Remove passengers from elevator
-            num_serviced = num_serviced + passenger->group_size;        // Includes pets also
+            elev_weight -= passenger->weight;              // Remove weight from elevator
+            num_passengers -= passenger->group_size;    // Remove passengers from elevator
+            num_serviced -= passenger->group_size;        // Includes pets also
             list_del(temp);                                             // Remove from linked list
-            kfree(passenger);                                           // Deallocate passenger
+            kfree(passenger);                                           // Deallocate passenger created from issue_request
         }
     }  
     // Allow any passenger w/ any pet type to get on next checkLoad
@@ -172,6 +183,7 @@ int checkFloors(void){
     return -1;
 }
 
+// Will run on own thread. Loops until elevator_exit()'s kthread_stop() is called
 int runElevator(void *data){
     while(!kthread_should_stop()){
         int check_floors = checkFloors();
@@ -220,9 +232,9 @@ static int elevator_init(void){
 
     // Initialize the queues
     for (i = 0; i < 10; i++){
-        INIT_LIST_HEAD(&floors[i]);
+        INIT_LIST_HEAD(&floors[i]);     // Initialize Linked List for each floor
     }
-    INIT_LIST_HEAD(&elev_passengers);
+    INIT_LIST_HEAD(&elev_passengers);   // Initialize elevator passenger Linked List
 
     // Run thread
     thread = kthread_run(runElevator, NULL, "elevator");
@@ -230,6 +242,7 @@ static int elevator_init(void){
     return 0;
 }
 module_init(elevator_init);
+
 
 static void elevator_exit(void){
     STUB_start_elevator = NULL;
