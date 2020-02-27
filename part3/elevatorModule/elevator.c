@@ -7,8 +7,6 @@
 MODULE_LICENSE("GPL");
 
 
-int runElevator();
-
 /* #define different states as integers */
 #define IDLE 0
 #define UP 1
@@ -136,7 +134,9 @@ int runElevator(){
             elev_state = IDLE;
         }
     }
+    return 0;
 }
+
 
 void checkLoad(int floor){
     struct list_head * temp;
