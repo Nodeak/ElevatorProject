@@ -17,6 +17,10 @@ MODULE_LICENSE("GPL");
 #define DOG 1
 #define NONE 2
 
+/* Thread creation */
+
+struct task_struct * thread;
+
 /* Struct for Queue and ElevatorFloor */
 struct list_head floors[10];    // Array of 10 linked lists
 
@@ -79,7 +83,6 @@ extern long (*STUB_stop_elevator)(void);
 long stop_elevator(void) {
     printk(KERN_NOTICE "stop_elevator called\n");
     elev_state = OFFLINE;
-    kthread_stop();
     // DROP REST OF PASSENGERS OFF
 
     return 0;
@@ -107,11 +110,12 @@ int runElevator(){
             elev_state = UP;
         }
 
-        
+        // Load and/or unload passengers
+        checkLoad(floor);
 
-        //load and/or unload passengers
-
+        // Check floors again after load/unload
         check_floors = checkFloors();
+
         if(elev_state == UP && current_floor < 10){
             //elevator goes up
             current_floor++;
@@ -127,6 +131,7 @@ int runElevator(){
             elev_state = UP;
             current_floor++;
         } else if (num_passengers == 0 && check_floors == -1){
+            // If no passengers and no people waiting
             elev_state = IDLE;
         }
     }
@@ -138,32 +143,22 @@ void checkLoad(int floor){
     bool loading = true;
 
     while(loading){
-        //check first person
+        // Check first person
         curr_passenger = list_first_entry(floors[floor-1], Person, list);
         if (curr_passenger.weight + elev_weight <= 15 && (curr_passenger.pet_type == animal_type | curr_passenger.pet_type == NONE)){
-            //if can load,
-                //remove pointer from floors[floor]
+            //If can load,
+                // Add Person to elev_passengers
                 list_add_tail(&curr_passenger.list, &elev_passengers);
-                //add to elev_pass
-                //deallocate from floors
+                // Remove from floors
+                Person person = list_entry(floors[floor-1], Person, list);
+                list_del(person);
 
+        } else {
+            // If cant load, stop loading
+            loading = false;
         }
-            //if cant load, set loading to false
-            
     }
-
-    // Person curr_passenger = list_first_entry(floors[floor-1]);
-    // if (curr_passenger.weight + elev_weight <= 15 && curr_passenger.pet_type == animal_type){
-    //     //load onto elevator (put into elev_passengers)
-    //     //delete Person from floors[floor-1]
-    // }
 }
-
-void checkUnload(int floor){
-
-}
-
-
 
 
 void checkUnload(int floor){
@@ -202,12 +197,6 @@ int checkFloors(){
 }
 
 
-
-
-
-
-
-
 /* Init and Exit functions */
 static int elevator_init(void){
     STUB_start_elevator = start_elevator;
@@ -221,6 +210,8 @@ static int elevator_init(void){
     }
     INIT_LIST_HEAD(&elev_passengers);
 
+    kthread_run(runElevator, NULL, "elevator");
+
     return 0;
 }
 module_init(elevator_init);
@@ -229,5 +220,6 @@ static void elevator_exit(void){
     STUB_start_elevator = NULL;
     STUB_stop_elevator = NULL;
     STUB_issue_request = NULL;
+    kthread_stop();
 }
 module_exit(elevator_exit);
