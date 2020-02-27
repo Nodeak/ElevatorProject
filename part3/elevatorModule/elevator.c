@@ -97,47 +97,6 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     return 0;
 }
 
-
-/* In house functions */
-
-int runElevator(void){
-    while(!kthread_should_stop(thread)){
-        int check_floors = checkFloors();
-        
-        // Check if waiting passengers
-        if (elev_state == IDLE && check_floors != -1){
-            elev_state = UP;
-        }
-
-        // Load and/or unload passengers
-        checkLoad(current_floor);
-
-        // Check if waiting passengers after load/unload
-        check_floors = checkFloors();
-
-        if(elev_state == UP && current_floor < 10){
-            //elevator goes up
-            current_floor++;
-        } else if (elev_state == UP && current_floor == 10){
-            //elevator now goes down
-            elev_state = DOWN;
-            current_floor--;
-        } else if (elev_state == DOWN && current_floor > 1){
-            //elevator goes down
-            current_floor--;
-        } else if (elev_state == DOWN && current_floor == 1){
-            //elevator goes down
-            elev_state = UP;
-            current_floor++;
-        } else if (num_passengers == 0 && check_floors == -1){
-            // If no passengers and no people waiting
-            elev_state = IDLE;
-        }
-    }
-    return 0;
-}
-
-
 void checkLoad(int floor){
     struct list_head * temp;
     struct Person * curr_passenger;
@@ -197,6 +156,47 @@ int checkFloors(void){
     }
     return -1;
 }
+
+/* In house functions */
+
+int runElevator(void){
+    while(!kthread_should_stop(thread)){
+        int check_floors = checkFloors();
+        
+        // Check if waiting passengers
+        if (elev_state == IDLE && check_floors != -1){
+            elev_state = UP;
+        }
+
+        // Load and/or unload passengers
+        checkLoad(current_floor);
+
+        // Check if waiting passengers after load/unload
+        check_floors = checkFloors();
+
+        if(elev_state == UP && current_floor < 10){
+            //elevator goes up
+            current_floor++;
+        } else if (elev_state == UP && current_floor == 10){
+            //elevator now goes down
+            elev_state = DOWN;
+            current_floor--;
+        } else if (elev_state == DOWN && current_floor > 1){
+            //elevator goes down
+            current_floor--;
+        } else if (elev_state == DOWN && current_floor == 1){
+            //elevator goes down
+            elev_state = UP;
+            current_floor++;
+        } else if (num_passengers == 0 && check_floors == -1){
+            // If no passengers and no people waiting
+            elev_state = IDLE;
+        }
+    }
+    return 0;
+}
+
+
 
 
 /* Init and Exit functions */
