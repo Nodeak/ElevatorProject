@@ -97,17 +97,21 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     return 0;
 }
 
+/* In house functions */
 void checkLoad(int floor){
     struct Person * curr_passenger;
+    struct list_head * temp_del;
+    struct Person * person_del;
     bool loading = true;
 
     while(loading){
         // Check first person
         curr_passenger = list_first_entry(&floors[floor-1], struct Person, list);
-        if (curr_passenger->weight + elev_weight <= 15 && (curr_passenger->pet_type == animal_type | curr_passenger->pet_type == NONE)){
+        if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
             //If can load,
                 // Add Person to elev_passengers
-                list_del(curr_passenger);
+                person_del = list_entry(temp_del, Person, list);
+                list_del(temp_del);
                 list_add_tail(&curr_passenger->list, &elev_passengers);
                 // Remove from floors
 
@@ -155,8 +159,6 @@ int checkFloors(void){
     return -1;
 }
 
-/* In house functions */
-
 int runElevator(void){
     while(!kthread_should_stop(thread)){
         int check_floors = checkFloors();
@@ -193,8 +195,6 @@ int runElevator(void){
     }
     return 0;
 }
-
-
 
 
 /* Init and Exit functions */
