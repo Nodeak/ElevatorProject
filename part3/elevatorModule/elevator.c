@@ -30,7 +30,7 @@ struct Person{
     int pet_type;
     int group_size;
     int weight;
-}
+};
 
 struct list_head elev_passengers;
 
@@ -73,7 +73,6 @@ long start_elevator(void) {
     num_waiting = 0;
     num_serviced = 0;
     
-    // Call main thread
     return 0;
 }
 
@@ -88,7 +87,7 @@ long stop_elevator(void) {
 
 extern long (*STUB_issue_request)(int, int, int, int);
 long issue_request(int num_pets, int pet_type, int start_floor, int destination_floor) {
-    printk(KERN_NOTICE "issue_request called\nnum pets: %ld\npet type: %ld\nstart floor: %ld\ndestination floor %ld", 
+    printk(KERN_NOTICE "issue_request called\nnum pets: %d\npet type: %d\nstart floor: %d\ndestination floor %d", 
         num_pets, pet_type, start_floor, destination_floor);
 
 
@@ -103,7 +102,8 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 int runElevator(){
     while(!kthread_should_stop()){
         int check_floors = checkFloors();
-
+        
+        // Check if waiting passengers
         if (elev_state == IDLE && check_floors != -1){
             elev_state = UP;
         }
@@ -111,7 +111,7 @@ int runElevator(){
         // Load and/or unload passengers
         checkLoad(floor);
 
-        // Check floors again after load/unload
+        // Check if waiting passengers after load/unload
         check_floors = checkFloors();
 
         if(elev_state == UP && current_floor < 10){
@@ -209,6 +209,7 @@ static int elevator_init(void){
     }
     INIT_LIST_HEAD(&elev_passengers);
 
+    // Run thread
     thread = kthread_run(runElevator, NULL, "elevator");
 
     return 0;
@@ -219,6 +220,8 @@ static void elevator_exit(void){
     STUB_start_elevator = NULL;
     STUB_stop_elevator = NULL;
     STUB_issue_request = NULL;
+
+    // Stop thread
     kthread_stop(thread);
 }
 module_exit(elevator_exit);
