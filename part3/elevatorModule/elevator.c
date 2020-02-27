@@ -209,7 +209,7 @@ static int elevator_init(void){
     }
     INIT_LIST_HEAD(&elev_passengers);
 
-    kthread_run(runElevator, NULL, "elevator");
+    thread = kthread_run(runElevator, NULL, "elevator");
 
     return 0;
 }
@@ -219,6 +219,6 @@ static void elevator_exit(void){
     STUB_start_elevator = NULL;
     STUB_stop_elevator = NULL;
     STUB_issue_request = NULL;
-    kthread_stop();
+    kthread_stop(thread);
 }
 module_exit(elevator_exit);
