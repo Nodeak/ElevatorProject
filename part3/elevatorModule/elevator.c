@@ -90,11 +90,11 @@ extern long (*STUB_issue_request)(int, int, int, int);
 long issue_request(int num_pets, int pet_type, int start_floor, int destination_floor) {
     printk(KERN_NOTICE "issue_request called\nnum pets: %d\npet type: %d\nstart floor: %d\ndestination floor %d", 
         num_pets, pet_type, start_floor, destination_floor);
-
+    int tot_weight;
     struct Person * passenger;
-    passenger = kmalloc(sizeof(Person), __GFP_RECLAIM);
+    passenger = kmalloc(sizeof(struct Person), __GFP_RECLAIM);
     
-    int tot_weight = 3; // Add weight of one person
+    tot_weight = 3; // Add weight of one person
     if (pet_type == CAT){
         // 1 weight unit
         tot_weight += num_pets;
