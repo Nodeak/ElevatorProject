@@ -2,10 +2,11 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/linkage.h>
-#include <linux/proc_fs.h>  //file system calls
-#include <linux/uaccess.h>  //memory copy from kernel <-> userspace
-#include <linux/time.h>     //for timespec
-#include <linux/slab.h>     //memory allocation functions
+#include <linux/kthread.h>  // Threading for kernel
+#include <linux/proc_fs.h>  // File system calls
+#include <linux/uaccess.h>  // Memory copy from kernel <-> userspace
+#include <linux/time.h>     // For timespec
+#include <linux/slab.h>     // Memory allocation functions
 #include <linux/printk.h>   // printk() - prints to Kernel
 #include <linux/list.h>     // Linked lists
 MODULE_LICENSE("GPL");
