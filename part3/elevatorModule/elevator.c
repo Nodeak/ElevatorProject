@@ -6,6 +6,9 @@
 #include <linux/list.h>     // Linked lists
 MODULE_LICENSE("GPL");
 
+
+int runElevator();
+
 /* #define different states as integers */
 #define IDLE 0
 #define UP 1
