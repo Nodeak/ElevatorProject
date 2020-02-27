@@ -33,6 +33,15 @@ MODULE_LICENSE("GPL");
 #define DOG 1
 #define NONE 2
 
+/* Proc Creation */
+#define MAX_STRING 1024
+#define BUF_LEN 1024 //max length of read/write message
+
+static struct proc_dir_entry* proc_entry; //pointer to proc entry
+static int procfs_buf_len; //variable to hold length of message
+
+static char*  msg;
+
 /* Thread creation */
 struct task_struct * thread;
 
@@ -57,6 +66,77 @@ static int num_passengers;
 static int animal_type;
 static int num_waiting;
 static int num_serviced;
+
+
+/* Sampe Proc Entry
+
+Elevator state: UP
+Elevator animals: dog
+Current floor: 4
+Number of passengers: 6
+Current weight: 14
+Number of passengers waiting: 34
+Number passengers serviced: 61
+[ ] Floor 10: 11 | o o o | x x x | o o
+[ ] Floor 9: 0
+[ ] Floor 8: 5 | o | x x
+[ ] Floor 7: 0
+[ ] Floor 6: 0
+[ ] Floor 5: 0
+[*] Floor 4: 8 | x x x | x x x
+[ ] Floor 3: 10 | x | x x x | x x x
+[ ] Floor 2: 0
+[ ] Floor 1: 0
+
+*/
+
+
+static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff_t *ppos) 
+{
+	printk(KERN_INFO "proc_read called\n");
+
+    msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
+
+    char * state;
+    char * ani_type;
+    if (elev_state == IDLE){
+        state = "IDLE";
+    } else if (elev_state == OFFLINE){
+        state = "OFFLINE";
+    } else if (elev_state == UP){
+        state = "UP";
+    } else if (elev_state == DOWN){
+        state = "DOWN";        
+    } else if (elev_state == LOADING){
+        state = "LOADING";
+    }
+
+    if (animal_type == DOG){
+        ani_type = "dog";
+    } else if (animal_type == CAT){
+        ani_type = "cat";
+    } else if (animal_type == NONE){
+        ani_type = "none";
+    }
+
+    sprintf(msg, "Elevator State: %s\nElevator Animals: %s\nCurrent Floor: %d\nNumber of Passengers: %d\n
+        Current Weight: %d\nNumber of Passengers Waiting: %d\nNumber of Passengers Serviced: %d\n", 
+        state, ani_type, current_floor, num_passengers, elev_weight, num_waiting, num_serviced);
+
+    //ADD FLOOR INFO HERE
+
+    procfs_buf_len = strlen(msg);
+    if (*ppos > 0 || count < procfs_buf_len)    //check if data already read and if space in user buffer
+        return 0;
+
+    if (copy_to_user(ubuf, msg, procfs_buf_len))    //send data to user buffer
+        return -EFAULT;
+    
+    *ppos = procfs_buf_len; //update position
+    printk(KERN_INFO "Sent to user %s\n", msg);
+    
+    return procfs_buf_len;     //return number of characters read
+}
 
 
 
@@ -229,6 +309,11 @@ int runElevator(void *data){
 }
 
 
+static struct file_operations fileOps = {
+    .owner = THIS_MODULE,
+    .read = proc_read,
+};
+
 /* Init and Exit functions */
 static int elevator_init(void){
     int i;
@@ -245,6 +330,13 @@ static int elevator_init(void){
     // Run thread
     thread = kthread_run(runElevator, NULL, "elevator");
 
+    //proc_create(filename, permissions, parent, pointer to file ops)
+    proc_entry = proc_create("elevator", 0666, NULL, &fileOps);
+
+    //if error creating proc entry
+    if (proc_entry == NULL)
+        return -ENOMEM;
+
     return 0;
 }
 module_init(elevator_init);
@@ -256,5 +348,9 @@ static void elevator_exit(void){
 
     // Stop thread
     kthread_stop(thread);
+
+    // Clean up proc entry
+    kfree(msg);
+    proc_remove(proc_entry);
 }
 module_exit(elevator_exit);
