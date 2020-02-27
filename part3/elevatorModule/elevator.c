@@ -203,13 +203,13 @@ int runElevator(void){
 
 /* Init and Exit functions */
 static int elevator_init(void){
+    int i;
     STUB_start_elevator = start_elevator;
     STUB_stop_elevator = stop_elevator;
     STUB_issue_request = issue_request;
 
     // Initialize the queues
-    int i = 0;
-    for (i; i < 10; i++){
+    for (i = 0; i < 10; i++){
         INIT_LIST_HEAD(&floors[i]);
     }
     INIT_LIST_HEAD(&elev_passengers);
