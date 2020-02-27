@@ -100,7 +100,7 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 void checkLoad(int floor){
     struct list_head * temp;
     struct Person * curr_passenger;
-    struct list_head * floor_temp = floors[floor-1];
+    struct list_head * floor_temp = &floors[floor-1];
     bool loading = true;
 
     while(loading){
