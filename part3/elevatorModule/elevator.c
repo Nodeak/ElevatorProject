@@ -208,8 +208,8 @@ static int elevator_init(void){
     STUB_issue_request = issue_request;
 
     // Initialize the queues
-    int i;
-    for (i = 0; i < 10; i++){
+    int i = 0;
+    for (i; i < 10; i++){
         INIT_LIST_HEAD(&floors[i]);
     }
     INIT_LIST_HEAD(&elev_passengers);
