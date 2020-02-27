@@ -151,6 +151,9 @@ extern long (*STUB_start_elevator)(void);
 long start_elevator(void) {
     printk(KERN_NOTICE "start_elevator called\n");
 
+    if (elev_state != OFFLINE){
+        return 1;
+    }
     elev_state = IDLE;
     elev_weight = 0;
     num_passengers = 0;
@@ -159,6 +162,8 @@ long start_elevator(void) {
     animal_type = NONE;
     num_waiting = 0;
     num_serviced = 0;
+
+
     
     return 0;
 }
@@ -288,6 +293,7 @@ int checkFloors(void){
 
 // Will run on own thread. Loops until elevator_exit()'s kthread_stop() is called
 int runElevator(void *data){
+    printk("entered runElevator\n");
     while(!kthread_should_stop()){
         int check_floors = checkFloors();
         
@@ -346,6 +352,10 @@ static int elevator_init(void){
 
     // Run thread
     thread = kthread_run(runElevator, NULL, "elevator");
+    if(IS_ERR(thread)) {
+      printk("Error: ElevatorRun\n");
+      return PTR_ERR(elevator_thread);
+    }
 
     //proc_create(filename, permissions, parent, pointer to file ops)
     proc_entry = proc_create("elevator", 0666, NULL, &fileOps);
@@ -360,12 +370,16 @@ module_init(elevator_init);
 
 
 static void elevator_exit(void){
+    int c;
     STUB_start_elevator = NULL;
     STUB_stop_elevator = NULL;
     STUB_issue_request = NULL;
 
     // Stop thread
-    kthread_stop(thread);
+    c = kthread_stop(thread);
+    if(c != -EINTR) {
+      printk("Elevator stopped...\n");
+    }
 
     // Clean up proc entry
     kfree(msg);
