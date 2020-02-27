@@ -163,6 +163,34 @@ void checkUnload(int floor){
 
 }
 
+
+
+
+void checkUnload(int floor){
+
+    //temporary pointers
+    struct list_head *temp;
+    struct list_head *dummy;
+    Person* passenger;
+    list_for_each(temp, dummy, &elev_passengers) { 
+        passenger = list_entry(temp, Person, list);
+        //can access item→num
+        // Unloads passengers from the elevator
+        if(passenger->floor_dest == current_floor){
+            elev_weight = elev_weight - passenger->weight;      // Remove weight from elevator
+            num_animals = num_animals - passenger->num_pets;    // Remove animals from elevator
+            list_del(temp);     // Remove from linked list
+            kfree(passenger);   // Deallocate passenger
+            num_serviced++;
+        }
+    }  
+    // Allow any passenger w/ any pet type to get on next checkLoad
+    if(num_passengers == 0){
+        animal_type = NONE;
+    }
+
+}
+
 int checkFloors(){
     int i;
     for(i = 0; i < 10; i++){
@@ -172,6 +200,7 @@ int checkFloors(){
     }
     return -1;
 }
+
 
 
 
