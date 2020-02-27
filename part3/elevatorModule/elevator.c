@@ -131,7 +131,7 @@ void checkUnload(int floor){
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
     list_for_each(temp, &elev_passengers) {
-        passenger = list_entry(temp, Person, list);
+        passenger = list_entry(temp, struct Person, list);
         // Unloads passengers from the elevator
         if(passenger->floor_dest == current_floor){
             elev_weight = elev_weight - passenger->weight;              // Remove weight from elevator
