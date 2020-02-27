@@ -354,7 +354,7 @@ static int elevator_init(void){
     thread = kthread_run(runElevator, NULL, "elevator");
     if(IS_ERR(thread)) {
       printk("Error: ElevatorRun\n");
-      return PTR_ERR(elevator_thread);
+      return PTR_ERR(thread);
     }
 
     //proc_create(filename, permissions, parent, pointer to file ops)
