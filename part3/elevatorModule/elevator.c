@@ -100,6 +100,9 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
     printk(KERN_INFO "proc_read called\n");
 
     msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
+    state = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
+    ani_type = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
+
 
    
     if (elev_state == IDLE){
