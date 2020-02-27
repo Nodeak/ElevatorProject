@@ -103,16 +103,16 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     passenger = kmalloc(sizeof(struct Person), __GFP_RECLAIM);
 
     /* Validate passengers */
-    if (start_floor < 1 | start_floor > 10){
+    if ((start_floor < 1) | (start_floor > 10)){
         return 1;
     } 
-    if (destination_floor < 1 | destination_floor > 10){
+    if ((destination_floor < 1) | (destination_floor > 10)){
         return 1;
     }
-    if (num_pets < 0 | num_pets > 3){
+    if ((num_pets < 0) | (num_pets > 3)){
         return 1;
     }
-    if (pet_type != 1 && pet_type != 2){
+    if ((pet_type != 1) && (pet_type != 2)){
         return 1;
     }
 
