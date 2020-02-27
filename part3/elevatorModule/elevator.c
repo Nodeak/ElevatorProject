@@ -164,7 +164,7 @@ int checkFloors(void){
 }
 
 int runElevator(void){
-    while(!kthread_should_stop(thread)){
+    while(!kthread_should_stop()){
         int check_floors = checkFloors();
         
         // Check if waiting passengers
