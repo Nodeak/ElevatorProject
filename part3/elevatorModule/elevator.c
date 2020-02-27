@@ -101,7 +101,7 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 /* In house functions */
 
 int runElevator(void){
-    while(!kthread_should_stop()){
+    while(!kthread_should_stop(thread)){
         int check_floors = checkFloors();
         
         // Check if waiting passengers
@@ -110,7 +110,7 @@ int runElevator(void){
         }
 
         // Load and/or unload passengers
-        checkLoad(floor);
+        checkLoad(current_floor);
 
         // Check if waiting passengers after load/unload
         check_floors = checkFloors();
@@ -188,7 +188,7 @@ void checkUnload(int floor){
 
 }
 
-int checkFloors(){
+int checkFloors(void){
     int i;
     for(i = 0; i < 10; i++){
         if(list_empty(floors[i] != 0){
