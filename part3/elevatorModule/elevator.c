@@ -127,11 +127,10 @@ void checkUnload(int floor){
 
     //temporary pointers
     struct list_head *temp;
-    struct list_head *dummy;
     struct Person* passenger;
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
-    list_for_each(temp, dummy, &elev_passengers) {
+    list_for_each(temp, &elev_passengers) {
         passenger = list_entry(temp, Person, list);
         // Unloads passengers from the elevator
         if(passenger->floor_dest == current_floor){
