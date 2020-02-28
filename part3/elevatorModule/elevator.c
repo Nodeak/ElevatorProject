@@ -347,8 +347,8 @@ int runElevator(void *data){
                 break;
             case IDLE:
                 if (isWaitingOne(current_floor)){
-                    elev_state = LOADING;
                     temp_state = UP;
+                    elev_state = LOADING;
                 }
                 if(isWaitingAll()){
                     elev_state = UP;
@@ -364,8 +364,8 @@ int runElevator(void *data){
                 ssleep(2);
 
                 if (isWaitingOne(current_floor)){
-                    elev_state = LOADING;
                     temp_state = elev_state;
+                    elev_state = LOADING;
                 }
                 break;
             case DOWN:
@@ -378,8 +378,8 @@ int runElevator(void *data){
                 ssleep(2);
 
                 if (isWaitingOne(current_floor)){
-                    elev_state = LOADING;
                     temp_state = elev_state;
+                    elev_state = LOADING;
                 }
                 break;
             case LOADING:
