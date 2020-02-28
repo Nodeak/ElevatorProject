@@ -181,7 +181,7 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         Sets up a new elevator with its default settings */
 extern long (*STUB_start_elevator)(void);
 long start_elevator(void) {
-    printk(KERN_NOTICE "start_elevator called\n");
+    printk(KERN_ALERT "start_elevator called\n");
     if (elev_state != OFFLINE){
         return 1;
     }
@@ -197,7 +197,7 @@ long start_elevator(void) {
             To drop rest of passengers still on elevator off before changing state */
 extern long (*STUB_stop_elevator)(void);
 long stop_elevator(void) {
-    printk(KERN_NOTICE "stop_elevator called\n");
+    printk(KERN_ALERT "stop_elevator called\n");
     elev_state = OFFLINE;
     // DROP REST OF PASSENGERS OFF
     return 0;
@@ -209,7 +209,7 @@ extern long (*STUB_issue_request)(int, int, int, int);
 long issue_request(int num_pets, int pet_type, int start_floor, int destination_floor) {
     int tot_weight;
     struct Person * passenger;
-    printk(KERN_NOTICE "issue_request called\nnum pets: %d\npet type: %d\nstart floor: %d\ndestination floor %d", 
+    printk(KERN_ALERT "issue_request called\nnum pets: %d\npet type: %d\nstart floor: %d\ndestination floor %d", 
         num_pets, pet_type, start_floor, destination_floor);
     passenger = kmalloc(sizeof(struct Person), __GFP_RECLAIM);
 
@@ -266,19 +266,19 @@ void checkLoad(int floor){
         printk(KERN_ALERT "Retrieving first person\n");
         curr_passenger = list_first_entry(&floors[floor-1], struct Person, list);
         if (curr_passenger != NULL){
-            printk(KERN_ALERT "Checking first person (if any)\n");
+            printk("Checking first person\n");
             if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
                 //If can load,
                     // Remove from floors
-                    printk(KERN_ALERT "Removing passengers from floor\n");
-                    person_del = list_entry(&floors[floor-1], struct Person, list);
-                    list_del(&floors[floor-1]);
+                    // printk("Removing passengers from floor\n");
+                    // person_del = list_entry(&floors[floor-1], struct Person, list);
+                    // list_del(&floors[floor-1]);
                     // Add Person to elev_passengers
-                    printk(KERN_ALERT "Adding passengers to elevator\n");
+                    printk("Adding passengers to elevator\n");
                     list_add_tail(&curr_passenger->list, &elev_passengers);
             } else {
                 // If cant load, stop loading
-                printk(KERN_ALERT "Setting loading to false\n");
+                printk("Setting loading to false\n");
                 loading = false;
             }
         } else {
