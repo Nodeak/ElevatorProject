@@ -260,7 +260,7 @@ void checkLoad(int floor){
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
 
-    list_for_each(temp, &floors[floor-1]){
+    list_for_each_safe(temp, &floors[floor-1]){
         if (loading){
             curr_passenger = list_entry(temp, struct Person, list);
             if ((curr_passenger->weight + elev_weight) <= 15){
@@ -276,7 +276,7 @@ void checkLoad(int floor){
                 printk("Adding passengers to elevator\n");
                 list_add_tail(&n->list, &elev_passengers);
 
-                // Remove from floors
+                // Remove passengers from floors
                 printk("Removing passengers from floor\n");
                 list_del(temp);
                 kfree(curr_passenger);
@@ -311,7 +311,7 @@ void checkUnload(int floor){
     printk(KERN_ALERT "entered checkUnload\n");
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
-    list_for_each(temp, &elev_passengers) {
+    list_for_each_safe(temp, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
         // Unloads passengers from the elevator
         if(passenger->floor_dest == current_floor){
