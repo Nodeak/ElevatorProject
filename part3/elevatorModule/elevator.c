@@ -6,7 +6,6 @@
 * 
 */
 
-
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -21,7 +20,6 @@
 #include <linux/string.h> 
 
 MODULE_LICENSE("GPL");
-
 
 /* Define different states as integers - eases code readability */
 #define IDLE 0
@@ -71,7 +69,6 @@ static int num_serviced;
 
 
 /* Sampe Proc Entry
-
 Elevator state: UP
 Elevator animals: dog
 Current floor: 4
@@ -89,21 +86,24 @@ Number passengers serviced: 61
 [ ] Floor 3: 10 | x | x x x | x x x
 [ ] Floor 2: 0
 [ ] Floor 1: 0
-
 */
-
 
 static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff_t *ppos) 
 {
+    int i;
+    int j;
     char * state;
     char * ani_type;
+    char * floor_string;
+    struct list_head *temp;
+    struct Person* passenger;
+
     printk(KERN_INFO "proc_read called\n");
 
     msg = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
     state = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
     ani_type = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
-
-
+    floor_string = kmalloc(sizeof(char) * MAX_STRING, __GFP_RECLAIM | __GFP_IO | __GFP_FS);
    
     if (elev_state == IDLE){
         state = "IDLE";
@@ -127,17 +127,43 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
 
     sprintf(msg, "Elevator State: %s\nElevator Animals: %s\nCurrent Floor: %d\nNumber of Passengers: %d\nCurrent Weight: %d\nNumber of Passengers Waiting: %d\nNumber of Passengers Serviced: %d\n",
         state, ani_type, current_floor, num_passengers, elev_weight, num_waiting, num_serviced);
-
+    
     //ADD FLOOR INFO HERE
+    // | - person
+    // x - dog
+    // o - cat
+    for (i = 0; i < 10; i++) {
+        if (current_floor == (i+1)){
+            strcat(msg, "[*]");
+        } else {    
+            strcat(msg, "[ ]");
+        }
+        strcat(msg, "Floor %d: %d", (i+1), floor);
+        list_for_each(temp, &floors[i]){
+            passenger = list_entry(temp, Person, list);
+            strcat(msg, "|");
+            if (passenger->pet_type == DOG){
+                for(j = 0; j < (passenger->group_size - 1);j++){
+                    strcat(msg, "x");
+                }
+            } else if (animal_type == CAT){
+                for(j = 0; j < (passenger->group_size - 1);j++){
+                    strcat(msg, "o");
+                }
+            }
+        }
+
+    }
+
 
     procfs_buf_len = strlen(msg);
-    if (*ppos > 0 || count < procfs_buf_len)    //check if data already read and if space in user buffer
+    if (*ppos > 0 || count < procfs_buf_len)    // Check if data already read and if space in user buffer
         return 0;
 
-    if (copy_to_user(ubuf, msg, procfs_buf_len))    //send data to user buffer
+    if (copy_to_user(ubuf, msg, procfs_buf_len))    // Send data to user buffer
         return -EFAULT;
     
-    *ppos = procfs_buf_len; //update position
+    *ppos = procfs_buf_len;     // Update position
     printk(KERN_INFO "Sent to user %s\n", msg);
     
     return procfs_buf_len;     //return number of characters read
