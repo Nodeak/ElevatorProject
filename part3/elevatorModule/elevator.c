@@ -128,7 +128,6 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
     sprintf(msg, "Elevator State: %s\nElevator Animals: %s\nCurrent Floor: %d\nNumber of Passengers: %d\nCurrent Weight: %d\nNumber of Passengers Waiting: %d\nNumber of Passengers Serviced: %d\n",
         state, ani_type, current_floor, num_passengers, elev_weight, num_waiting, num_serviced);
     
-    //ADD FLOOR INFO HERE
     // | - person
     // x - dog
     // o - cat
@@ -192,8 +191,6 @@ long start_elevator(void) {
     num_waiting = 0;
     num_serviced = 0;
 
-
-    
     return 0;
 }
 
@@ -400,18 +397,24 @@ module_init(elevator_init);
 
 static void elevator_exit(void){
     int c;
+    printk("Removing system calls\n");
     STUB_start_elevator = NULL;
     STUB_stop_elevator = NULL;
     STUB_issue_request = NULL;
 
     // Stop thread
+    printk("Stopping main thread\n");
     c = kthread_stop(thread);
     if(c != -EINTR) {
-      printk("Elevator stopped...\n");
+      printk("Elevator thread stopped...\n");
     }
 
     // Clean up proc entry
+    printk("Removing proc entry\n");
     kfree(msg);
     proc_remove(proc_entry);
+    printk("Proc entry removed\n");
+
+    return;
 }
 module_exit(elevator_exit);
