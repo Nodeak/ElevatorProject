@@ -134,7 +134,7 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
     // | - person
     // x - dog
     // o - cat
-    for (i = 0; i < 10; i++) {
+    for (i = 10; i >= 1; i++) {
         if (current_floor == (i+1)){
             strcat(msg, "[*]");
         } else {    
