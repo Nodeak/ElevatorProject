@@ -379,28 +379,28 @@ static struct file_operations fileOps = {
 
 /* Init and Exit functions */
 static int elevator_init(void){
-    // int i;
+    int i;
 
     printk(KERN_ALERT "elevator initializing\n");
 
-    // STUB_start_elevator = start_elevator;
-    // STUB_stop_elevator = stop_elevator;
-    // STUB_issue_request = issue_request;
+    STUB_start_elevator = start_elevator;
+    STUB_stop_elevator = stop_elevator;
+    STUB_issue_request = issue_request;
 
-    // elev_state = OFFLINE;
-    // elev_weight = 0;
-    // num_passengers = 0;
-    // current_floor = 1;
+    elev_state = OFFLINE;
+    elev_weight = 0;
+    num_passengers = 0;
+    current_floor = 1;
 
-    // animal_type = NONE;
-    // num_waiting = 0;
-    // num_serviced = 0;
+    animal_type = NONE;
+    num_waiting = 0;
+    num_serviced = 0;
 
-    // // Initialize the queues
-    // for (i = 0; i < 10; i++){
-    //     INIT_LIST_HEAD(&floors[i]);     // Initialize Linked List for each floor
-    // }
-    // INIT_LIST_HEAD(&elev_passengers);   // Initialize elevator passenger Linked List
+    // Initialize the queues
+    for (i = 0; i < 10; i++){
+        INIT_LIST_HEAD(&floors[i]);     // Initialize Linked List for each floor
+    }
+    INIT_LIST_HEAD(&elev_passengers);   // Initialize elevator passenger Linked List
 
     // // Run thread
     // thread = kthread_run(runElevator, NULL, "elevator");
@@ -409,24 +409,24 @@ static int elevator_init(void){
     //   return PTR_ERR(thread);
     // }
 
-    // //proc_create(filename, permissions, parent, pointer to file ops)
-    // proc_entry = proc_create("elevator", 0666, NULL, &fileOps);
-
-    // //if error creating proc entry
-    // if (proc_entry == NULL)
-    //     return -ENOMEM;
+    //proc_create(filename, permissions, parent, pointer to file ops)
+    proc_entry = proc_create("elevator", 0666, NULL, &fileOps);
+    //if error creating proc entry
+    if (proc_entry == NULL)
+        return -ENOMEM;
 
     return 0;
 }
 
 
 static void elevator_exit(void){
-    // int c;
+    int c;
     printk(KERN_ALERT "elevator exiting\n");
-    // printk("Removing system calls\n");
-    // STUB_start_elevator = NULL;
-    // STUB_stop_elevator = NULL;
-    // STUB_issue_request = NULL;
+
+    printk("Removing system calls\n");
+    STUB_start_elevator = NULL;
+    STUB_stop_elevator = NULL;
+    STUB_issue_request = NULL;
 
     // // Stop thread
     // printk("Stopping main thread\n");
@@ -435,11 +435,11 @@ static void elevator_exit(void){
     //   printk("Elevator thread stopped...\n");
     // }
 
-    // // Clean up proc entry
-    // printk("Removing proc entry\n");
-    // kfree(msg);
-    // proc_remove(proc_entry);
-    // printk("Proc entry removed\n");
+    // Clean up proc entry
+    printk("Removing proc entry\n");
+    kfree(msg);
+    proc_remove(proc_entry);
+    printk("Proc entry removed\n");
 
     return;
 }
