@@ -260,6 +260,8 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 
 /* In-house functions */
 void checkLoad(int floor){
+    printk(KERN_ALERT "entered checkUnload\n");
+
     struct Person * curr_passenger;
     struct Person * person_del;
     bool loading = true;
@@ -283,6 +285,7 @@ void checkLoad(int floor){
 
 
 void checkUnload(int floor){
+    printk(KERN_ALERT "entered checkUnload\n");
 
     // Temporary pointers
     struct list_head *temp;
@@ -319,7 +322,7 @@ int checkFloors(void){
 
 // Will run on own thread. Loops until elevator_exit()'s kthread_stop() is called
 int runElevator(void *data){
-    printk("entered runElevator\n");
+    printk(KERN_ALERT "entered runElevator\n");
     while(!kthread_should_stop()){
         int check_floors = checkFloors();
         
