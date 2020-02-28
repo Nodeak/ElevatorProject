@@ -255,32 +255,39 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 
 /* In-house functions */
 void checkLoad(int floor){
-
     struct list_head *temp;
     struct Person * curr_passenger;
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
 
-
     list_for_each(temp, &floors[floor-1]){
         if (loading){
             curr_passenger = list_entry(temp, struct Person, list);
             if ((curr_passenger->weight + elev_weight) <= 15){
-
                 //If can load,
-                    // Remove from floors
-                    // printk("Removing passengers from floor\n");
-                    // list_del(temp);
-                    // Add Person to elev_passengers
-                    printk("Adding passengers to elevator\n");
-                    list_add_tail(&curr_passenger->list, &elev_passengers);
-                    
-                    elev_weight += curr_passenger->weight;
-                    if (num_passengers == 0){
-                        animal_type = curr_passenger->pet_type;
-                    }
-                    num_passengers += curr_passenger->group_size;
-                    num_waiting -= curr_passenger->group_size;
+
+                // Add Person to elev_passengers
+                struct Person *n;
+                n = kmalloc(sizeof(struct Person), __GFP_RECLAIM);
+                n->weight = curr_passenger->weight;
+                n->pet_type = curr_passenger->pet_type;
+                n->group_size = curr_passenger->group_size;
+                n->floor_dest = curr_passenger->floor_dest;
+                printk("Adding passengers to elevator\n");
+                list_add_tail(&n->list, &elev_passengers);
+
+                // Remove from floors
+                printk("Removing passengers from floor\n");
+                list_del(temp);
+                kfree(curr_passenger);
+
+                // Update elevator variables
+                elev_weight += curr_passenger->weight;
+                if (num_passengers == 0){
+                    animal_type = curr_passenger->pet_type;
+                }
+                num_passengers += curr_passenger->group_size;
+                num_waiting -= curr_passenger->group_size;
 
             } else {
                 // If cant load, stop loading
