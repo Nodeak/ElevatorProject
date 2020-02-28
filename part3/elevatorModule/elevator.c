@@ -269,12 +269,19 @@ void checkLoad(int floor){
 
                 //If can load,
                     // Remove from floors
-                    printk("Removing passengers from floor\n");
-                    list_del(temp);
-                    // // Add Person to elev_passengers
-                    // printk("Adding passengers to elevator\n");
-                    // list_add_tail(&curr_passenger->list, &elev_passengers);
-                    // elev_weight += curr_passenger->weight;
+                    // printk("Removing passengers from floor\n");
+                    // list_del(temp);
+                    // Add Person to elev_passengers
+                    printk("Adding passengers to elevator\n");
+                    list_add_tail(&curr_passenger->list, &elev_passengers);
+                    
+                    elev_weight += curr_passenger->weight;
+                    if (num_passengers == 0){
+                        animal_type = curr_passenger->pet_type;
+                    }
+                    num_passengers += curr_passenger->group_size;
+                    num_waiting -= curr_passenger->group_size;
+
             } else {
                 // If cant load, stop loading
                 printk("Setting loading to false\n");
