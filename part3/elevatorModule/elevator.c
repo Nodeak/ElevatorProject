@@ -146,14 +146,14 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
 
         list_for_each(temp, &floors[i]){
             passenger = list_entry(temp, struct Person, list);
-            strcat(msg, "|");
+            strcat(msg, "| ");
             if (passenger->pet_type == DOG){
                 for(j = 0; j < (passenger->group_size - 1);j++){
-                    strcat(msg, "x");
+                    strcat(msg, "x ");
                 }
             } else if (animal_type == CAT){
                 for(j = 0; j < (passenger->group_size - 1);j++){
-                    strcat(msg, "o");
+                    strcat(msg, "o ");
                 }
             }
         }
@@ -260,9 +260,7 @@ void checkLoad(int floor){
     struct Person * person_del;
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
-
-    //ERROR W POINTER SOMEHERE IN HERE
-
+    
     while(loading){
         // Check first person
         printk(KERN_ALERT "Retrieving first person\n");
@@ -320,6 +318,8 @@ void checkUnload(int floor){
     return;
 }
 
+/* Function to check if there are any waiting passengers on any floor
+    Mainly used to kick elevator from IDLE state */
 int isWaitingAll(void){
     int i;
     for(i = 0; i < 10; i++){
@@ -330,6 +330,7 @@ int isWaitingAll(void){
     return 0;
 }
 
+/* Function to check if there are any waiting passengers on a certain floor */
 int isWaitingOne(int floor){
     if(list_empty(&floors[floor-1]) == 0){
         return 1;
@@ -384,28 +385,13 @@ int runElevator(void *data){
                 break;
             case LOADING:
                 ssleep(1);
-                // checkLoad(current_floor);
-                // checkUnload();
+                checkLoad(current_floor);
+                if (num_passengers > 0){
+                    checkUnload();
+                }
                 elev_state = temp_state;
                 break;
-
         }
-        
-        // // Load and/or unload passengers
-        // checkLoad(current_floor);
-        // checkUnload(current_floor);
-
-        // } else if (elev_state == DOWN && current_floor > 1){
-        //     //elevator goes down
-        //     current_floor--;
-        // } else if (elev_state == DOWN && current_floor == 1){
-        //     //elevator goes down
-        //     elev_state = UP;
-        //     current_floor++;
-        // } else if (num_passengers == 0 && is_waiting == -1 && elev_state != OFFLINE){
-        //     // If no passengers and no people waiting
-        //     elev_state = IDLE;
-        // }
     }
     return 0;
 }
