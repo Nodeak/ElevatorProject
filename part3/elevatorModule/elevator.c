@@ -260,11 +260,11 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 
 /* In-house functions */
 void checkLoad(int floor){
-    printk(KERN_ALERT "entered checkUnload\n");
 
     struct Person * curr_passenger;
     struct Person * person_del;
     bool loading = true;
+    printk(KERN_ALERT "entered checkUnload\n");
 
     while(loading){
         // Check first person
@@ -285,11 +285,11 @@ void checkLoad(int floor){
 
 
 void checkUnload(int floor){
-    printk(KERN_ALERT "entered checkUnload\n");
 
     // Temporary pointers
     struct list_head *temp;
     struct Person * passenger;
+    printk(KERN_ALERT "entered checkUnload\n");
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
     list_for_each(temp, &elev_passengers) {
