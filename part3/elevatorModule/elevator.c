@@ -179,19 +179,10 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
 extern long (*STUB_start_elevator)(void);
 long start_elevator(void) {
     printk(KERN_NOTICE "start_elevator called\n");
-
     if (elev_state != OFFLINE){
         return 1;
     }
     elev_state = IDLE;
-    elev_weight = 0;
-    num_passengers = 0;
-    current_floor = 1;
-
-    animal_type = NONE;
-    num_waiting = 0;
-    num_serviced = 0;
-
     return 0;
 }
 
@@ -397,6 +388,13 @@ static int elevator_init(void){
     // STUB_issue_request = issue_request;
 
     // elev_state = OFFLINE;
+    // elev_weight = 0;
+    // num_passengers = 0;
+    // current_floor = 1;
+
+    // animal_type = NONE;
+    // num_waiting = 0;
+    // num_serviced = 0;
 
     // // Initialize the queues
     // for (i = 0; i < 10; i++){
