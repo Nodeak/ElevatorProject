@@ -365,6 +365,8 @@ static struct file_operations fileOps = {
 
 /* Init and Exit functions */
 static int elevator_init(void){
+    printk(KERN_ALERT "elevator initializing\n");
+
     int i;
     STUB_start_elevator = start_elevator;
     STUB_stop_elevator = stop_elevator;
@@ -392,10 +394,11 @@ static int elevator_init(void){
 
     return 0;
 }
-module_init(elevator_init);
 
 
 static void elevator_exit(void){
+    printk(KERN_ALERT "elevator exiting\n");
+
     int c;
     printk("Removing system calls\n");
     STUB_start_elevator = NULL;
@@ -417,4 +420,6 @@ static void elevator_exit(void){
 
     return;
 }
+
+module_init(elevator_init);
 module_exit(elevator_exit);
