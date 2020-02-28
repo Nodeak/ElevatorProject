@@ -270,19 +270,27 @@ void checkLoad(int floor){
 
     while(loading){
         // Check first person
+        printk(KERN_ALERT "Retrieving first person\n");
         curr_passenger = list_first_entry(&floors[floor-1], struct Person, list);
-        if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
-            //If can load,
-                // Remove from floors
-                person_del = list_entry(&floors[floor-1], struct Person, list);
-                list_del(&floors[floor-1]);
-                // Add Person to elev_passengers
-                list_add_tail(&curr_passenger->list, &elev_passengers);
-        } else {
-            // If cant load, stop loading
-            loading = false;
+        printk(KERN_ALERT "Checking first person (if any)\n");
+        if (curr_passenger != NULL){
+            if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
+                //If can load,
+                    // Remove from floors
+                    printk(KERN_ALERT "Removing passengers from floor\n");
+                    person_del = list_entry(&floors[floor-1], struct Person, list);
+                    list_del(&floors[floor-1]);
+                    // Add Person to elev_passengers
+                    printk(KERN_ALERT "Adding passengers to elevator\n");
+                    list_add_tail(&curr_passenger->list, &elev_passengers);
+            } else {
+                // If cant load, stop loading
+                loading = false;
+            }
         }
     }
+
+    return;
 }
 
 
@@ -310,6 +318,7 @@ void checkUnload(int floor){
         animal_type = NONE;
     }
 
+    return;
 }
 
 int checkFloors(void){
