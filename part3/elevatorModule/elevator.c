@@ -19,6 +19,7 @@
 #include <linux/list.h>     // Linked lists
 #include <linux/string.h> 
 #include <linux/delay.h> // Used for the ssleep() function.
+#include <linux/mutex.h> // Mutex/lock functions
 
 
 MODULE_LICENSE("GPL");
@@ -50,6 +51,10 @@ struct task_struct * elev_thread;
 /* Struct for Queue and ElevatorFloor */
 struct list_head floors[10];        // Array of 10 linked lists representing each floor
 struct list_head elev_passengers;   // Linked list representing elevator passengers
+
+/* Locks for the Queues */
+struct mutex elev_pass_mutex;
+struct mutex floors_mutex;
 
 struct Person{                      // Hold important information about Passengers
     struct list_head list;          // Give the struct a specific address. Needed to be used in a Linked List
@@ -128,9 +133,10 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         ani_type = "none";
     }
 
+    mutex_lock_interruptible(&floors_mutex);
+    mutex_lock_interruptible(&elev_pass_mutex);
     sprintf(msg, "Elevator State: %s\nElevator Animals: %s\nCurrent Floor: %d\nNumber of Passengers: %d\nCurrent Weight: %d\nNumber of Passengers Waiting: %d\nNumber of Passengers Serviced: %d\n",
-        state, ani_type, current_floor, num_passengers, elev_weight, num_waiting, num_serviced);
-    
+        state, ani_type, current_floor, num_passengers, elev_weight, num_waiting, num_serviced);    
     // | - person
     // x - dog
     // o - cat
@@ -158,9 +164,9 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
             }
         }
         strcat(msg, "\n");
-
     }
-
+    mutex_unlock(&elev_pass_mutex);
+    mutex_unlock(&floors_mutex);
 
     procfs_buf_len = strlen(msg);
     if (*ppos > 0 || count < procfs_buf_len)    // Check if data already read and if space in user buffer
@@ -247,7 +253,9 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     num_waiting += passenger->group_size;
 
     // Put passengers on start floor
+    mutex_lock_interruptible(&floors_mutex);
     list_add_tail(&passenger->list, &floors[start_floor-1]);
+    mutex_unlock(&floors_mutex);
 
     return 0;
 }
@@ -260,6 +268,7 @@ void checkLoad(int floor){
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
 
+    mutex_lock_interruptible(&floors_mutex);
     list_for_each_safe(pos, t, &floors[floor-1]){
         if (loading){
             curr_passenger = list_entry(pos, struct Person, list);
@@ -273,9 +282,12 @@ void checkLoad(int floor){
                 n->pet_type = curr_passenger->pet_type;
                 n->group_size = curr_passenger->group_size;
                 n->floor_dest = curr_passenger->floor_dest;
+               
                 printk("Adding passengers to elevator\n");
-                list_add_tail(&n->list, &elev_passengers);
 
+                mutex_lock_interruptible(&elev_pass_mutex);
+                list_add_tail(&n->list, &elev_passengers);
+                mutex_unlock(&elev_pass_mutex);
                 // Remove passengers from floors
                 printk("Removing passengers from floor\n");
                 list_del(pos);
@@ -297,6 +309,7 @@ void checkLoad(int floor){
             }
         }
     }
+    mutex_unlock(&floors_mutex);
     return;
 }
 
@@ -310,6 +323,7 @@ void checkUnload(int floor){
     printk(KERN_ALERT "entered checkUnload\n");
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
+    mutex_lock_interruptible(&elev_pass_mutex);
     list_for_each_safe(temp, t, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
         // Unloads passengers from the elevator
@@ -321,6 +335,7 @@ void checkUnload(int floor){
             kfree(passenger);                                           // Deallocate passenger created from issue_request
         }
     }  
+    mutex_unlock(&elev_pass_mutex);
     // Allow any passenger w/ any pet type to get on next checkLoad
     if(num_passengers == 0){
         animal_type = NONE;
@@ -366,6 +381,7 @@ int doUnload(void){
     // Temporary pointers
     struct list_head *temp, *t;
     struct Person * passenger;
+    mutex_lock_interruptible(&elev_pass_mutex);
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
     list_for_each_safe(temp, t, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
@@ -374,6 +390,7 @@ int doUnload(void){
             return 1;
         }
     }  
+    mutex_unlock(&elev_pass_mutex);
     return 0;
 }
 
