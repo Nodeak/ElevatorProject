@@ -288,6 +288,9 @@ void checkLoad(int floor){
                 printk(KERN_ALERT "Setting loading to false\n");
                 loading = false;
             }
+        } else {
+            // If no passengers,
+            loading = false;
         }
     }
 
