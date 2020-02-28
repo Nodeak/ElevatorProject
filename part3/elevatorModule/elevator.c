@@ -350,24 +350,24 @@ int runElevator(void *data){
         // // Check if waiting passengers after load/unload
         // check_floors = checkFloors();
 
-        // if(elev_state == UP && current_floor < 10){
-        //     //elevator goes up
-        //     current_floor++;
-        // } else if (elev_state == UP && current_floor == 10){
-        //     //elevator now goes down
-        //     elev_state = DOWN;
-        //     current_floor--;
-        // } else if (elev_state == DOWN && current_floor > 1){
-        //     //elevator goes down
-        //     current_floor--;
-        // } else if (elev_state == DOWN && current_floor == 1){
-        //     //elevator goes down
-        //     elev_state = UP;
-        //     current_floor++;
-        // } else if (num_passengers == 0 && check_floors == -1){
-        //     // If no passengers and no people waiting
-        //     elev_state = IDLE;
-        // }
+        if(elev_state == UP && current_floor < 10){
+            //elevator goes up
+            current_floor++;
+        } else if (elev_state == UP && current_floor == 10){
+            //elevator now goes down
+            elev_state = DOWN;
+            current_floor--;
+        } else if (elev_state == DOWN && current_floor > 1){
+            //elevator goes down
+            current_floor--;
+        } else if (elev_state == DOWN && current_floor == 1){
+            //elevator goes down
+            elev_state = UP;
+            current_floor++;
+        } else if (num_passengers == 0 && check_floors == -1 && elev_state != OFFLINE){
+            // If no passengers and no people waiting
+            elev_state = IDLE;
+        }
     }
     return 0;
 }
