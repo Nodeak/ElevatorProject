@@ -256,23 +256,21 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 /* In-house functions */
 void checkLoad(int floor){
 
+    struct list_head *temp;
     struct Person * curr_passenger;
     struct Person * person_del;
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
 
-    while(loading){
-        // Check first person
-        printk(KERN_ALERT "Retrieving first person\n");
-        curr_passenger = list_first_entry(&floors[floor-1], struct Person, list);
-        if (curr_passenger != NULL){
-            printk("Checking first person\n");
+
+    list_for_each(temp, &floors[floor-1]){
+        if (loading){
+            curr_passenger = list_entry(temp, struct Person, list);
             if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
                 //If can load,
                     // Remove from floors
-                    // printk("Removing passengers from floor\n");
-                    // person_del = list_entry(&floors[floor-1], struct Person, list);
-                    // list_del(&floors[floor-1]);
+                    printk("Removing passengers from floor\n");
+                    list_del(temp);
                     // Add Person to elev_passengers
                     printk("Adding passengers to elevator\n");
                     list_add_tail(&curr_passenger->list, &elev_passengers);
@@ -281,11 +279,34 @@ void checkLoad(int floor){
                 printk("Setting loading to false\n");
                 loading = false;
             }
-        } else {
-            // If no passengers,
-            loading = false;
         }
     }
+
+    // while(loading){
+    //     // Check first person
+    //     printk(KERN_ALERT "Retrieving first person\n");
+    //     curr_passenger = list_first_entry(&floors[floor-1], struct Person, list);
+    //     if (curr_passenger != NULL){
+    //         printk("Checking first person\n");
+    //         if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
+    //             //If can load,
+    //                 // Remove from floors
+    //                 // printk("Removing passengers from floor\n");
+    //                 // person_del = list_entry(&floors[floor-1], struct Person, list);
+    //                 // list_del(&floors[floor-1]);
+    //                 // Add Person to elev_passengers
+    //                 printk("Adding passengers to elevator\n");
+    //                 list_add_tail(&curr_passenger->list, &elev_passengers);
+    //         } else {
+    //             // If cant load, stop loading
+    //             printk("Setting loading to false\n");
+    //             loading = false;
+    //         }
+    //     } else {
+    //         // If no passengers,
+    //         loading = false;
+    //     }
+    // }
 
     return;
 }
