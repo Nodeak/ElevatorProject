@@ -138,7 +138,10 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         } else {    
             strcat(msg, "[ ]");
         }
-        strcat(msg, "Floor %d: %d", (i+1), floor);
+        // strcat(msg, "Floor %d: %d", (i+1) );
+
+        strcat(msg, "Floor %d:", (i+1));
+
         list_for_each(temp, &floors[i]){
             passenger = list_entry(temp, struct Person, list);
             strcat(msg, "|");
