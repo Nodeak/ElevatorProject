@@ -338,8 +338,8 @@ int runElevator(void *data){
     while(!kthread_should_stop()){
         int check_floors = checkFloors();
 
-        printk(KERN_ALERT "Check Floors returned: %d\n" check_floors);
-        printk(KERN_ALERT "Current floor: %d\n" current_floor);
+        printk(KERN_ALERT "Check Floors returned: %d\n", check_floors);
+        printk(KERN_ALERT "Current floor: %d\n", current_floor);
 
         
         // Check if waiting passengers
