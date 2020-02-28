@@ -395,6 +395,8 @@ static int elevator_init(void){
     STUB_stop_elevator = stop_elevator;
     STUB_issue_request = issue_request;
 
+    elev_state = OFFLINE;
+
     // Initialize the queues
     for (i = 0; i < 10; i++){
         INIT_LIST_HEAD(&floors[i]);     // Initialize Linked List for each floor
