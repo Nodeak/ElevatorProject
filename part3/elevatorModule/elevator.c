@@ -43,7 +43,7 @@ static int procfs_buf_len; //variable to hold length of message
 static char*  msg;
 
 /* Thread creation */
-struct task_struct * thread;
+struct task_struct * elev_thread;
 
 /* Struct for Queue and ElevatorFloor */
 struct list_head floors[10];        // Array of 10 linked lists representing each floor
@@ -330,43 +330,44 @@ int checkFloors(void){
 // Will run on own thread. Loops until elevator_exit()'s kthread_stop() is called
 int runElevator(void *data){
     printk(KERN_ALERT "entered runElevator\n");
-    while(!kthread_should_stop() && elev_state != OFFLINE){
-        int check_floors = checkFloors();
+    while(!kthread_should_stop()){
+    // while(!kthread_should_stop() && elev_state != OFFLINE){
+        // int check_floors = checkFloors();
 
-        printk(KERN_ALERT "Check Floors returned: %d\n", check_floors);
-        printk(KERN_ALERT "Current floor: %d\n", current_floor);
+        // printk(KERN_ALERT "Check Floors returned: %d\n", check_floors);
+        // printk(KERN_ALERT "Current floor: %d\n", current_floor);
 
         
-        // Check if waiting passengers
-        if (elev_state == IDLE && check_floors != -1){
-            elev_state = UP;
-        }
+        // // Check if waiting passengers
+        // if (elev_state == IDLE && check_floors != -1){
+        //     elev_state = UP;
+        // }
 
-        // Load and/or unload passengers
-        checkLoad(current_floor);
-        checkUnload(current_floor);
+        // // Load and/or unload passengers
+        // checkLoad(current_floor);
+        // checkUnload(current_floor);
 
-        // Check if waiting passengers after load/unload
-        check_floors = checkFloors();
+        // // Check if waiting passengers after load/unload
+        // check_floors = checkFloors();
 
-        if(elev_state == UP && current_floor < 10){
-            //elevator goes up
-            current_floor++;
-        } else if (elev_state == UP && current_floor == 10){
-            //elevator now goes down
-            elev_state = DOWN;
-            current_floor--;
-        } else if (elev_state == DOWN && current_floor > 1){
-            //elevator goes down
-            current_floor--;
-        } else if (elev_state == DOWN && current_floor == 1){
-            //elevator goes down
-            elev_state = UP;
-            current_floor++;
-        } else if (num_passengers == 0 && check_floors == -1){
-            // If no passengers and no people waiting
-            elev_state = IDLE;
-        }
+        // if(elev_state == UP && current_floor < 10){
+        //     //elevator goes up
+        //     current_floor++;
+        // } else if (elev_state == UP && current_floor == 10){
+        //     //elevator now goes down
+        //     elev_state = DOWN;
+        //     current_floor--;
+        // } else if (elev_state == DOWN && current_floor > 1){
+        //     //elevator goes down
+        //     current_floor--;
+        // } else if (elev_state == DOWN && current_floor == 1){
+        //     //elevator goes down
+        //     elev_state = UP;
+        //     current_floor++;
+        // } else if (num_passengers == 0 && check_floors == -1){
+        //     // If no passengers and no people waiting
+        //     elev_state = IDLE;
+        // }
     }
     return 0;
 }
@@ -383,10 +384,14 @@ static int elevator_init(void){
 
     printk(KERN_ALERT "elevator initializing\n");
 
+
+    printk("Initializing system calls\n");
     STUB_start_elevator = start_elevator;
     STUB_stop_elevator = stop_elevator;
     STUB_issue_request = issue_request;
 
+
+    printk("Initializing elevator variables\n");
     elev_state = OFFLINE;
     elev_weight = 0;
     num_passengers = 0;
@@ -396,19 +401,22 @@ static int elevator_init(void){
     num_waiting = 0;
     num_serviced = 0;
 
+    printk("Initializing queues\n");
     // Initialize the queues
     for (i = 0; i < 10; i++){
         INIT_LIST_HEAD(&floors[i]);     // Initialize Linked List for each floor
     }
     INIT_LIST_HEAD(&elev_passengers);   // Initialize elevator passenger Linked List
 
-    // // Run thread
-    // thread = kthread_run(runElevator, NULL, "elevator");
-    // if(IS_ERR(thread)) {
-    //   printk("Error: ElevatorRun\n");
-    //   return PTR_ERR(thread);
-    // }
+    // Run thread
+    printk("Running thread\n");
+    elev_thread = kthread_run(runElevator, NULL, "Elevator Thread");
+    if(IS_ERR(elev_thread)) {
+      printk("Error: runElevator\n");
+      return PTR_ERR(elev_thread);
+    }
 
+    printk("Creating proc entry\n");
     //proc_create(filename, permissions, parent, pointer to file ops)
     proc_entry = proc_create("elevator", 0666, NULL, &fileOps);
     //if error creating proc entry
@@ -428,12 +436,13 @@ static void elevator_exit(void){
     STUB_stop_elevator = NULL;
     STUB_issue_request = NULL;
 
-    // // Stop thread
-    // printk("Stopping main thread\n");
-    // c = kthread_stop(thread);
-    // if(c != -EINTR) {
-    //   printk("Elevator thread stopped...\n");
-    // }
+    
+    // Stop thread
+    printk("Stopping main thread\n");
+    c = kthread_stop(thread);
+    if(c != -EINTR) {
+      printk("Elevator thread stopped...\n");
+    }
 
     // Clean up proc entry
     printk("Removing proc entry\n");
