@@ -490,6 +490,9 @@ static int elevator_init(void){
     num_waiting = 0;
     num_serviced = 0;
 
+    mutex_init(&elev_pass_mutex);
+    mutex_init(&floors_mutex);
+
     printk("Initializing queues\n");
     // Initialize the queues
     for (i = 0; i < 10; i++){
@@ -525,6 +528,8 @@ static void elevator_exit(void){
     STUB_stop_elevator = NULL;
     STUB_issue_request = NULL;
 
+    mutex_destroy(&elev_pass_mutex);
+    mutex_destroy(&floors_mutex);
     
     // Stop thread
     printk("Stopping main thread\n");
