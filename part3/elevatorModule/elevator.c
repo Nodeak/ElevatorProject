@@ -301,6 +301,7 @@ void checkLoad(int floor){
 }
 
 
+
 void checkUnload(int floor){
 
     // Temporary pointers
@@ -329,7 +330,11 @@ void checkUnload(int floor){
 }
 
 /* Function to check if there are any waiting passengers on any floor
-    Mainly used to kick elevator from IDLE state */
+    Mainly used to kick elevator from IDLE state 
+
+    returns 1 if there are waiting passengers
+            0 if no waiting passengers    
+*/
 int isWaitingAll(void){
     int i;
     for(i = 0; i < 10; i++){
@@ -340,13 +345,38 @@ int isWaitingAll(void){
     return 0;
 }
 
-/* Function to check if there are any waiting passengers on a certain floor */
+/* Function to check if there are any waiting passengers on a certain floor 
+
+    returns 1 if there are waiting passengers
+            0 if no waiting passengers 
+*/
 int isWaitingOne(int floor){
     if(list_empty(&floors[floor-1]) == 0){
         return 1;
     }
     return 0;
 }
+
+
+/* Function to see if any passengers on the elevator need to get off
+    returns 1 if passengers need to get off
+            0 if no one needs to get off
+*/
+int doUnload(void){
+    // Temporary pointers
+    struct list_head *temp, *t;
+    struct Person * passenger;
+    // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
+    list_for_each_safe(temp, t, &elev_passengers) {
+        passenger = list_entry(temp, struct Person, list);
+        // Unloads passengers from the elevator
+        if(passenger->floor_dest == current_floor){
+            return 1;
+        }
+    }  
+    return 0;
+}
+
 
 // Will run on own thread. Loops until elevator_exit()'s kthread_stop() is called
 int runElevator(void *data){
@@ -374,7 +404,7 @@ int runElevator(void *data){
                 }
                 ssleep(2);
 
-                if (isWaitingOne(current_floor)){
+                if (isWaitingOne(current_floor) || doUnload()){
                     next_state = elev_state;
                     elev_state = LOADING;
                 }
@@ -388,18 +418,26 @@ int runElevator(void *data){
                 }
                 ssleep(2);
 
-                if (isWaitingOne(current_floor)){
+                if (isWaitingOne(current_floor) || doUnload()){
                     next_state = elev_state;
                     elev_state = LOADING;
                 }
                 break;
             case LOADING:
                 ssleep(1);
-                checkLoad(current_floor);
-                if (num_passengers > 0){
+                
+                if (doUnload())
                     checkUnload(current_floor);
+                
+                if (isWaitingOne(current_floor))
+                    checkLoad(current_floor);
+
+                if (num_passengers == 0 && !isWaitingAll()){
+                    elev_state = IDLE;
+                } else {
+                    elev_state = next_state;
                 }
-                elev_state = next_state;
+
                 break;
         }
     }
