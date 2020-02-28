@@ -268,11 +268,18 @@ void checkLoad(int floor){
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
 
+    bool valid = false;
+    if (num_passengers == 0 && curr_passenger->pet_type == NONE){
+        valid = true;
+    } else if (num_passengers > 0 && curr_passenger->pet_type == animal_type){
+        valid = true;
+    }
+
     // mutex_lock_interruptible(&floors_mutex);
     list_for_each_safe(pos, t, &floors[floor-1]){
         if (loading){
             curr_passenger = list_entry(pos, struct Person, list);
-            if ((curr_passenger->weight + elev_weight) <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
+            if ((curr_passenger->weight + elev_weight) <= 15 && valid){
                 //If can load,
 
                 // Add Person to elev_passengers
