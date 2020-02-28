@@ -439,7 +439,7 @@ static void elevator_exit(void){
     
     // Stop thread
     printk("Stopping main thread\n");
-    c = kthread_stop(thread);
+    c = kthread_stop(elev_thread);
     if(c != -EINTR) {
       printk("Elevator thread stopped...\n");
     }
