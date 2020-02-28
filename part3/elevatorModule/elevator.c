@@ -275,9 +275,11 @@ void checkLoad(int floor){
         if (loading){
             bool valid = false;
             curr_passenger = list_entry(pos, struct Person, list);
-            if (num_passengers == 0 && curr_passenger->pet_type == NONE){
+            if (num_passengers == 0){
                 valid = true;
             } else if (num_passengers > 0 && curr_passenger->pet_type == animal_type){
+                valid = true;
+            } else if (num_passengers > 0 && curr_passenger->pet_type == NONE){
                 valid = true;
             }
             if ((curr_passenger->weight + elev_weight) <= 15 && valid){
