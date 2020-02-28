@@ -255,14 +255,14 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 
 /* In-house functions */
 void checkLoad(int floor){
-    struct list_head *temp;
+    struct list_head *pos, *t;
     struct Person * curr_passenger;
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
 
-    list_for_each_safe(temp, &floors[floor-1]){
+    list_for_each_safe(pos, t, &floors[floor-1]){
         if (loading){
-            curr_passenger = list_entry(temp, struct Person, list);
+            curr_passenger = list_entry(pos, struct Person, list);
             if ((curr_passenger->weight + elev_weight) <= 15){
                 //If can load,
 
@@ -278,7 +278,7 @@ void checkLoad(int floor){
 
                 // Remove passengers from floors
                 printk("Removing passengers from floor\n");
-                list_del(temp);
+                list_del(pos);
                 kfree(curr_passenger);
 
                 // Update elevator variables
@@ -297,8 +297,6 @@ void checkLoad(int floor){
             }
         }
     }
-
-
     return;
 }
 
@@ -306,12 +304,12 @@ void checkLoad(int floor){
 void checkUnload(int floor){
 
     // Temporary pointers
-    struct list_head *temp;
+    struct list_head *temp, *t;
     struct Person * passenger;
     printk(KERN_ALERT "entered checkUnload\n");
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
-    list_for_each_safe(temp, &elev_passengers) {
+    list_for_each_safe(temp, t, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
         // Unloads passengers from the elevator
         if(passenger->floor_dest == current_floor){
