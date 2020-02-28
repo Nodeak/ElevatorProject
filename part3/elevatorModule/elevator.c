@@ -62,7 +62,7 @@ struct Person{                      // Hold important information about Passenge
 
 /* Defining global variables */
 static int elev_state;
-static int temp_state;
+static int next_state;
 static int current_floor;       // Keeps track where elevator is at
 static int elev_weight;         // Weight includes both Person and pet
 static int num_passengers;      // Passenger count includes both Person and pets
@@ -258,7 +258,6 @@ void checkLoad(int floor){
 
     struct list_head *temp;
     struct Person * curr_passenger;
-    struct Person * person_del;
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
 
@@ -271,9 +270,9 @@ void checkLoad(int floor){
                     // Remove from floors
                     printk("Removing passengers from floor\n");
                     list_del(temp);
-                    // Add Person to elev_passengers
-                    printk("Adding passengers to elevator\n");
-                    list_add_tail(&curr_passenger->list, &elev_passengers);
+                    // // Add Person to elev_passengers
+                    // printk("Adding passengers to elevator\n");
+                    // list_add_tail(&curr_passenger->list, &elev_passengers);
             } else {
                 // If cant load, stop loading
                 printk("Setting loading to false\n");
@@ -343,7 +342,7 @@ int runElevator(void *data){
                 break;
             case IDLE:
                 if (isWaitingOne(current_floor)){
-                    temp_state = UP;
+                    next_state = UP;
                     elev_state = LOADING;
                 }
                 if(isWaitingAll()){
@@ -360,7 +359,7 @@ int runElevator(void *data){
                 ssleep(2);
 
                 if (isWaitingOne(current_floor)){
-                    temp_state = elev_state;
+                    next_state = elev_state;
                     elev_state = LOADING;
                 }
                 break;
@@ -374,7 +373,7 @@ int runElevator(void *data){
                 ssleep(2);
 
                 if (isWaitingOne(current_floor)){
-                    temp_state = elev_state;
+                    next_state = elev_state;
                     elev_state = LOADING;
                 }
                 break;
@@ -384,7 +383,7 @@ int runElevator(void *data){
                 if (num_passengers > 0){
                     checkUnload(current_floor);
                 }
-                elev_state = temp_state;
+                elev_state = next_state;
                 break;
         }
     }
