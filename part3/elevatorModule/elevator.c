@@ -316,7 +316,7 @@ void checkUnload(int floor){
         if(passenger->floor_dest == current_floor){
             elev_weight -= passenger->weight;              // Remove weight from elevator
             num_passengers -= passenger->group_size;    // Remove passengers from elevator
-            num_serviced -= passenger->group_size;        // Includes pets also
+            num_serviced += passenger->group_size;        // Includes pets also
             list_del(temp);                                             // Remove from linked list
             kfree(passenger);                                           // Deallocate passenger created from issue_request
         }
