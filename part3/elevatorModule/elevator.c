@@ -323,7 +323,7 @@ void checkUnload(int floor){
     printk(KERN_ALERT "entered checkUnload\n");
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
-    mutex_lock_interruptible(&elev_pass_mutex);
+    // mutex_lock_interruptible(&elev_pass_mutex);
     list_for_each_safe(temp, t, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
         // Unloads passengers from the elevator
@@ -335,7 +335,7 @@ void checkUnload(int floor){
             kfree(passenger);                                           // Deallocate passenger created from issue_request
         }
     }  
-    mutex_unlock(&elev_pass_mutex);
+    // mutex_unlock(&elev_pass_mutex);
     // Allow any passenger w/ any pet type to get on next checkLoad
     if(num_passengers == 0){
         animal_type = NONE;
@@ -530,7 +530,7 @@ static void elevator_exit(void){
 
     mutex_destroy(&elev_pass_mutex);
     mutex_destroy(&floors_mutex);
-    
+
     // Stop thread
     printk("Stopping main thread\n");
     c = kthread_stop(elev_thread);
