@@ -264,7 +264,9 @@ void checkLoad(int floor){
     struct Person * curr_passenger;
     struct Person * person_del;
     bool loading = true;
-    printk(KERN_ALERT "entered checkUnload\n");
+    printk(KERN_ALERT "entered checkLoad\n");
+
+    //ERROR W POINTER SOMEHERE IN HERE
 
     while(loading){
         // Check first person
