@@ -330,12 +330,13 @@ int checkFloors(void){
 // Will run on own thread. Loops until elevator_exit()'s kthread_stop() is called
 int runElevator(void *data){
     printk(KERN_ALERT "entered runElevator\n");
-    while(!kthread_should_stop()){
-    // while(!kthread_should_stop() && elev_state != OFFLINE){
-        // int check_floors = checkFloors();
+    while(!kthread_should_stop() && elev_state != OFFLINE){
+        printk(KERN_ALERT "entered while loop in runElevator\n");
+        
+        int check_floors = checkFloors();
 
-        // printk(KERN_ALERT "Check Floors returned: %d\n", check_floors);
-        // printk(KERN_ALERT "Current floor: %d\n", current_floor);
+        printk("Check Floors returned: %d\n", check_floors);
+        printk("Current floor: %d\n", current_floor);
 
         
         // // Check if waiting passengers
