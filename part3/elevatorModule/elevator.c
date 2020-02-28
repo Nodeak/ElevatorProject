@@ -260,7 +260,7 @@ void checkLoad(int floor){
     struct Person * person_del;
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
-    
+
     while(loading){
         // Check first person
         printk(KERN_ALERT "Retrieving first person\n");
@@ -387,7 +387,7 @@ int runElevator(void *data){
                 ssleep(1);
                 checkLoad(current_floor);
                 if (num_passengers > 0){
-                    checkUnload();
+                    checkUnload(current_floor);
                 }
                 elev_state = temp_state;
                 break;
