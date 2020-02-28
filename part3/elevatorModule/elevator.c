@@ -322,7 +322,7 @@ void checkUnload(int floor){
 int isWaitingAll(void){
     int i;
     for(i = 0; i < 10; i++){
-        if(list_empty(&floors[i]) != 0){
+        if(list_empty(&floors[i]) == 0){
             return 1;
         }
     }
@@ -330,8 +330,8 @@ int isWaitingAll(void){
 }
 
 int isWaitingOne(int floor){
-    if(list_empty(&floors[floor -1]) != 0){
-            return 1;
+    if(list_empty(&floors[floor-1]) == 0){
+        return 1;
     }
     return 0;
 }
