@@ -253,9 +253,9 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     num_waiting += passenger->group_size;
 
     // Put passengers on start floor
-    mutex_lock_interruptible(&floors_mutex);
+    // mutex_lock_interruptible(&floors_mutex);
     list_add_tail(&passenger->list, &floors[start_floor-1]);
-    mutex_unlock(&floors_mutex);
+    // mutex_unlock(&floors_mutex);
 
     return 0;
 }
@@ -268,11 +268,11 @@ void checkLoad(int floor){
     bool loading = true;
     printk(KERN_ALERT "entered checkLoad\n");
 
-    mutex_lock_interruptible(&floors_mutex);
+    // mutex_lock_interruptible(&floors_mutex);
     list_for_each_safe(pos, t, &floors[floor-1]){
         if (loading){
             curr_passenger = list_entry(pos, struct Person, list);
-            if ((curr_passenger->weight + elev_weight) <= 15){
+            if ((curr_passenger->weight + elev_weight) <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
                 //If can load,
 
                 // Add Person to elev_passengers
@@ -285,9 +285,9 @@ void checkLoad(int floor){
                
                 printk("Adding passengers to elevator\n");
 
-                mutex_lock_interruptible(&elev_pass_mutex);
+                // mutex_lock_interruptible(&elev_pass_mutex);
                 list_add_tail(&n->list, &elev_passengers);
-                mutex_unlock(&elev_pass_mutex);
+                // mutex_unlock(&elev_pass_mutex);
                 // Remove passengers from floors
                 printk("Removing passengers from floor\n");
                 list_del(pos);
@@ -309,7 +309,7 @@ void checkLoad(int floor){
             }
         }
     }
-    mutex_unlock(&floors_mutex);
+    // mutex_unlock(&floors_mutex);
     return;
 }
 
@@ -323,6 +323,7 @@ void checkUnload(int floor){
     printk(KERN_ALERT "entered checkUnload\n");
 
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
+   
     // mutex_lock_interruptible(&elev_pass_mutex);
     list_for_each_safe(temp, t, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
@@ -331,11 +332,13 @@ void checkUnload(int floor){
             elev_weight -= passenger->weight;              // Remove weight from elevator
             num_passengers -= passenger->group_size;    // Remove passengers from elevator
             num_serviced += passenger->group_size;        // Includes pets also
+            printk("Removing passengers from elevator\n");
             list_del(temp);                                             // Remove from linked list
             kfree(passenger);                                           // Deallocate passenger created from issue_request
         }
     }  
     // mutex_unlock(&elev_pass_mutex);
+
     // Allow any passenger w/ any pet type to get on next checkLoad
     if(num_passengers == 0){
         animal_type = NONE;
@@ -381,7 +384,7 @@ int doUnload(void){
     // Temporary pointers
     struct list_head *temp, *t;
     struct Person * passenger;
-    mutex_lock_interruptible(&elev_pass_mutex);
+    // mutex_lock_interruptible(&elev_pass_mutex);
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
     list_for_each_safe(temp, t, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
@@ -390,7 +393,7 @@ int doUnload(void){
             return 1;
         }
     }  
-    mutex_unlock(&elev_pass_mutex);
+    // mutex_unlock(&elev_pass_mutex);
     return 0;
 }
 
