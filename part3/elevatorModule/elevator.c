@@ -356,7 +356,7 @@ int runElevator(void *data){
                 if (current_floor < 10){
                     current_floor++;
                 } else if (current_floor == 10){
-                    elev_state == DOWN;
+                    elev_state = DOWN;
                     current_floor--;
                 }
                 ssleep(2);
@@ -369,7 +369,7 @@ int runElevator(void *data){
                 if (current_floor > 1){
                     current_floor--;
                 } else if (current_floor == 1){
-                    elev_state == UP;
+                    elev_state = UP;
                     current_floor++;
                 }
                 ssleep(2);
