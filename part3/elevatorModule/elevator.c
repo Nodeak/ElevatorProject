@@ -265,7 +265,8 @@ void checkLoad(int floor){
     list_for_each(temp, &floors[floor-1]){
         if (loading){
             curr_passenger = list_entry(temp, struct Person, list);
-            if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
+            if ((curr_passenger->weight + elev_weight) <= 15){
+
                 //If can load,
                     // Remove from floors
                     printk("Removing passengers from floor\n");
@@ -273,6 +274,7 @@ void checkLoad(int floor){
                     // // Add Person to elev_passengers
                     // printk("Adding passengers to elevator\n");
                     // list_add_tail(&curr_passenger->list, &elev_passengers);
+                    // elev_weight += curr_passenger->weight;
             } else {
                 // If cant load, stop loading
                 printk("Setting loading to false\n");
@@ -281,6 +283,8 @@ void checkLoad(int floor){
             }
         }
     }
+
+
     return;
 }
 
