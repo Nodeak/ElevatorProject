@@ -62,6 +62,7 @@ struct Person{                      // Hold important information about Passenge
 
 /* Defining global variables */
 static int elev_state;
+static int temp_state;
 static int current_floor;       // Keeps track where elevator is at
 static int elev_weight;         // Weight includes both Person and pet
 static int num_passengers;      // Passenger count includes both Person and pets
@@ -345,11 +346,12 @@ int runElevator(void *data){
             case OFFLINE:
                 break;
             case IDLE:
-                if(isWaitingAll()){
-                    elev_state = UP;
-                }
                 if (isWaitingOne(current_floor)){
                     elev_state = LOADING;
+                    temp_state = UP;
+                }
+                if(isWaitingAll()){
+                    elev_state = UP;
                 }
                 break;
             case UP:
@@ -363,6 +365,7 @@ int runElevator(void *data){
 
                 if (isWaitingOne(current_floor)){
                     elev_state = LOADING;
+                    temp_state = elev_state;
                 }
                 break;
             case DOWN:
@@ -376,12 +379,14 @@ int runElevator(void *data){
 
                 if (isWaitingOne(current_floor)){
                     elev_state = LOADING;
+                    temp_state = elev_state;
                 }
                 break;
             case LOADING:
                 ssleep(1);
                 // checkLoad(current_floor);
                 // checkUnload();
+                elev_state = temp_state;
                 break;
 
         }
