@@ -317,58 +317,88 @@ void checkUnload(int floor){
     return;
 }
 
-int checkFloors(void){
+int isWaitingAll(void){
     int i;
     for(i = 0; i < 10; i++){
         if(list_empty(&floors[i]) != 0){
-            return i;
+            return 1;
         }
     }
-    return -1;
+    return 0;
+}
+
+int isWaitingOne(int floor){
+    if(list_empty(&floors[floor -1]) != 0){
+            return 1;
+    }
+    return 0;
 }
 
 // Will run on own thread. Loops until elevator_exit()'s kthread_stop() is called
 int runElevator(void *data){
     printk(KERN_ALERT "entered runElevator\n");
     while(!kthread_should_stop()){
-        int check_floors = checkFloors();
        
-        printk(KERN_ALERT "entered while loop in runElevator\n"); 
+        switch(elev_state){
+            case OFFLINE:
+                break;
+            case IDLE:
+                if(isWaitingAll()){
+                    elev_state = UP;
+                }
+                if (isWaitingOne(current_floor)){
+                    elev_state = LOADING;
+                }
+                break;
+            case UP:
+                if (current_floor < 10){
+                    current_floor++;
+                } else if (current_floor == 10){
+                    elev_state == DOWN;
+                    current_floor--;
+                }
+                ssleep(2);
 
-        printk("Check Floors returned: %d\n", check_floors);
-        printk("Current floor: %d\n", current_floor);
+                if (isWaitingOne(current_floor)){
+                    elev_state = LOADING;
+                }
+                break;
+            case DOWN:
+                if (current_floor > 1){
+                    current_floor--;
+                } else if (current_floor == 1){
+                    elev_state == UP;
+                    current_floor++;
+                }
+                ssleep(2);
 
+                if (isWaitingOne(current_floor)){
+                    elev_state = LOADING;
+                }
+                break;
+            case LOADING:
+                ssleep(1);
+                // checkLoad(current_floor);
+                // checkUnload();
+                break;
+
+        }
         
-        // // Check if waiting passengers
-        // if (elev_state == IDLE && check_floors != -1){
-        //     elev_state = UP;
-        // }
-
         // // Load and/or unload passengers
         // checkLoad(current_floor);
         // checkUnload(current_floor);
 
-        // // Check if waiting passengers after load/unload
-        // check_floors = checkFloors();
-
-        if(elev_state == UP && current_floor < 10){
-            //elevator goes up
-            current_floor++;
-        } else if (elev_state == UP && current_floor == 10){
-            //elevator now goes down
-            elev_state = DOWN;
-            current_floor--;
-        } else if (elev_state == DOWN && current_floor > 1){
-            //elevator goes down
-            current_floor--;
-        } else if (elev_state == DOWN && current_floor == 1){
-            //elevator goes down
-            elev_state = UP;
-            current_floor++;
-        } else if (num_passengers == 0 && check_floors == -1 && elev_state != OFFLINE){
-            // If no passengers and no people waiting
-            elev_state = IDLE;
-        }
+        // } else if (elev_state == DOWN && current_floor > 1){
+        //     //elevator goes down
+        //     current_floor--;
+        // } else if (elev_state == DOWN && current_floor == 1){
+        //     //elevator goes down
+        //     elev_state = UP;
+        //     current_floor++;
+        // } else if (num_passengers == 0 && is_waiting == -1 && elev_state != OFFLINE){
+        //     // If no passengers and no people waiting
+        //     elev_state = IDLE;
+        // }
     }
     return 0;
 }
