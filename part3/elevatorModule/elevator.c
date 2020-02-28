@@ -272,8 +272,8 @@ void checkLoad(int floor){
         // Check first person
         printk(KERN_ALERT "Retrieving first person\n");
         curr_passenger = list_first_entry(&floors[floor-1], struct Person, list);
-        printk(KERN_ALERT "Checking first person (if any)\n");
         if (curr_passenger != NULL){
+            printk(KERN_ALERT "Checking first person (if any)\n");
             if (curr_passenger->weight + elev_weight <= 15 && ((curr_passenger->pet_type == animal_type) | (curr_passenger->pet_type == NONE))){
                 //If can load,
                     // Remove from floors
@@ -285,6 +285,7 @@ void checkLoad(int floor){
                     list_add_tail(&curr_passenger->list, &elev_passengers);
             } else {
                 // If cant load, stop loading
+                printk(KERN_ALERT "Setting loading to false\n");
                 loading = false;
             }
         }
@@ -336,6 +337,10 @@ int runElevator(void *data){
     printk(KERN_ALERT "entered runElevator\n");
     while(!kthread_should_stop()){
         int check_floors = checkFloors();
+
+        printk(KERN_ALERT "Check Floors returned: %d\n" check_floors);
+        printk(KERN_ALERT "Current floor: %d\n" current_floor);
+
         
         // Check if waiting passengers
         if (elev_state == IDLE && check_floors != -1){
