@@ -18,6 +18,8 @@
 #include <linux/printk.h>   // printk() - prints to Kernel
 #include <linux/list.h>     // Linked lists
 #include <linux/string.h> 
+#include <linux/delay.h> // Used for the ssleep() function.
+
 
 MODULE_LICENSE("GPL");
 
