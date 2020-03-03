@@ -429,7 +429,9 @@ int runElevator(void *data){
             case OFFLINE:
                 break;
             case IDLE:
-
+                if (final_unload){
+                    elev_state = OFFLINE;
+                }
                 if (isWaitingOne(current_floor)){
                     next_state = UP;
                     elev_state = LOADING;
@@ -481,9 +483,7 @@ int runElevator(void *data){
                     elev_state = next_state;
                 }
 
-                if (final_unload){
-                    elev_state = OFFLINE;
-                }
+                
 
                 break;
         }
