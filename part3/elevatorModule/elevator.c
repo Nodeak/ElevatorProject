@@ -32,9 +32,9 @@ MODULE_LICENSE("GPL");
 #define OFFLINE 4
 
 /* Define animal types as integers - eases code readability */
-#define CAT 0
-#define DOG 1
-#define NONE 2
+#define CAT 1
+#define DOG 2
+#define NONE 3
 
 /* Proc Creation */
 #define MAX_STRING 1024
@@ -244,10 +244,16 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
         tot_weight += num_pets * 2;
     }
 
+    
+
     // Inserting info about Person into the struct
     passenger->weight = tot_weight;
     passenger->floor_dest = destination_floor;
-    passenger->pet_type = pet_type;
+    if (num_pets == 0){
+        passenger->pet_type = NONE;
+    } else {
+        passenger->pet_type = pet_type;
+    }
     passenger->group_size = num_pets + 1;
 
     num_waiting += passenger->group_size;
