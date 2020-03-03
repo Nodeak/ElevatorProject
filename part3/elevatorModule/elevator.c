@@ -49,6 +49,7 @@ static char*  msg;
 struct task_struct * elev_thread;
 
 /* Struct for Queue and ElevatorFloor */
+int floor_waiting_count[10] = {0,0,0,0,0,0,0,0,0,0};    // Will increment on issue_request, decrement on checkLoad
 struct list_head floors[10];        // Array of 10 linked lists representing each floor
 struct list_head elev_passengers;   // Linked list representing elevator passengers
 
@@ -147,7 +148,7 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
             strcat(msg, "[ ]");
         }
         // strcat(msg, "Floor %d: %d", (i+1) );
-        sprintf(floor_string, "Floor %d:", (i+1));
+        sprintf(floor_string, "Floor %d: %d ", (i+1), floor_waiting_count[i]);
         strcat(msg, floor_string);
 
         list_for_each(temp, &floors[i]){
@@ -258,6 +259,7 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 
     num_waiting += passenger->group_size;
 
+    floor_waiting_count[destination_floor - 1] += passenger->group_size;
     // Put passengers on start floor
     // mutex_lock_interruptible(&floors_mutex);
     list_add_tail(&passenger->list, &floors[start_floor-1]);
@@ -316,6 +318,7 @@ void checkLoad(int floor){
                 }
                 num_passengers += curr_passenger->group_size;
                 num_waiting -= curr_passenger->group_size;
+                floor_waiting_count[current_floor - 1] -= curr_passenger->group_size;    // Decrement group from floor count
 
             } else {
                 // If cant load, stop loading
