@@ -154,11 +154,11 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
             passenger = list_entry(temp, struct Person, list);
             strcat(msg, "| ");
             if (passenger->pet_type == DOG){
-                for(j = 0; j < (passenger->group_size);j++){
+                for(j = 0; j < (passenger->group_size - 1);j++){
                     strcat(msg, "x ");
                 }
-            } else if (animal_type == CAT){
-                for(j = 0; j < (passenger->group_size);j++){
+            } else if (passenger->pet_type == CAT){
+                for(j = 0; j < (passenger->group_size - 1);j++){
                     strcat(msg, "o ");
                 }
             }
