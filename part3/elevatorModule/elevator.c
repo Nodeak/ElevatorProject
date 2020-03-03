@@ -259,7 +259,7 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
 
     num_waiting += passenger->group_size;
 
-    floor_waiting_count[destination_floor - 1] += passenger->group_size;
+    floor_waiting_count[start_floor - 1] += passenger->group_size;
     // Put passengers on start floor
     // mutex_lock_interruptible(&floors_mutex);
     list_add_tail(&passenger->list, &floors[start_floor-1]);
