@@ -11,6 +11,19 @@ Kiara Boone
     - Elevator movement and scheduling
     - Implemented proc output
     - Loading of Elevator
+Kaedon Hamm
+    Part 1:
+    - Implement 5 syscalls within program for testing
+    - Used strace to track all system calls from the program
+        
+    Part 2:
+    - Inserted, checked proc, and removed the my_timer module
+    
+    Part3:
+    - Set up structure of code (global vars, defines, functions)
+    - Unloading of Elevator
+    - Helped with proc output
+    - Documentation & Testing
 
 Contents of tar file:
 README - Information about team and project files
@@ -47,6 +60,7 @@ To insert module:
 > sudo insmod elevator.ko
 
 To remove module:
+> make stop
 > sudo rmmod elevator
 
 Known Bugs and Unfinished Portions of the Project:
