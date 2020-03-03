@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
 	}
 		
 	pet_type = rnd(1, 2);
-	num_pets = rnd(0,3);
+	num_pets = rnd(0,4);
 	start = rnd(1, 10);
 	do {
 		dest = rnd(1, 10);
