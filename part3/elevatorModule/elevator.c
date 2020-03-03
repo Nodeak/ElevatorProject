@@ -378,11 +378,9 @@ void checkUnload(int floor){
 int isWaitingAll(void){
     int i;
     for(i = 0; i < 10; i++){
-        mutex_lock_interruptible(&floors_mutex);
         if(list_empty(&floors[i]) == 0){
             return 1;
         }
-        mutex_unlock(&floors_mutex);
     }
     return 0;
 }
@@ -393,11 +391,9 @@ int isWaitingAll(void){
             0 if no waiting passengers 
 */
 int isWaitingOne(int floor){
-    mutex_lock_interruptible(&floors_mutex);
     if(list_empty(&floors[floor-1]) == 0){
         return 1;
     }
-    mutex_unlock(&floors_mutex);
     return 0;
 }
 
@@ -410,6 +406,7 @@ int doUnload(void){
     // Temporary pointers
     struct list_head *temp, *t;
     struct Person * passenger;
+    // mutex_lock_interruptible(&elev_pass_mutex);
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
     list_for_each_safe(temp, t, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
@@ -418,6 +415,7 @@ int doUnload(void){
             return 1;
         }
     }  
+    // mutex_unlock(&elev_pass_mutex);
     return 0;
 }
 
