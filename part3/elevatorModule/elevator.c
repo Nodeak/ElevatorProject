@@ -136,8 +136,7 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         ani_type = "none";
     }
 
-    mutex_lock_interruptible(&floors_mutex);
-    mutex_lock_interruptible(&elev_pass_mutex);
+    
     sprintf(msg, "Elevator State: %s\nElevator Animals: %s\nCurrent Floor: %d\nNumber of Passengers: %d\nCurrent Weight: %d\nNumber of Passengers Waiting: %d\nNumber of Passengers Serviced: %d\n",
         state, ani_type, current_floor, num_passengers, elev_weight, num_waiting, num_serviced);    
     // | - person
@@ -152,7 +151,8 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
         // strcat(msg, "Floor %d: %d", (i+1) );
         sprintf(floor_string, "Floor %d: %d ", (i+1), floor_waiting_count[i]);
         strcat(msg, floor_string);
-
+    
+        mutex_lock_interruptible(&floors_mutex);
         list_for_each(temp, &floors[i]){
             passenger = list_entry(temp, struct Person, list);
             strcat(msg, "| ");
@@ -166,10 +166,9 @@ static ssize_t proc_read(struct file *file, char __user *ubuf,size_t count, loff
                 }
             }
         }
+        mutex_unlock(&floors_mutex);
         strcat(msg, "\n");
     }
-    mutex_unlock(&elev_pass_mutex);
-    mutex_unlock(&floors_mutex);
 
     procfs_buf_len = strlen(msg);
     if (*ppos > 0 || count < procfs_buf_len)    // Check if data already read and if space in user buffer
@@ -263,10 +262,11 @@ long issue_request(int num_pets, int pet_type, int start_floor, int destination_
     num_waiting += passenger->group_size;
 
     floor_waiting_count[start_floor - 1] += passenger->group_size;
+
     // Put passengers on start floor
-    // mutex_lock_interruptible(&floors_mutex);
+    mutex_lock_interruptible(&floors_mutex);
     list_add_tail(&passenger->list, &floors[start_floor-1]);
-    // mutex_unlock(&floors_mutex);
+    mutex_unlock(&floors_mutex);
 
     return 0;
 }
