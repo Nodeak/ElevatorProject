@@ -66,6 +66,8 @@ struct Person{                      // Hold important information about Passenge
 };
 
 
+static bool final_unload = false;
+
 /* Defining global variables */
 static int elev_state;
 static int next_state;
@@ -205,8 +207,9 @@ long start_elevator(void) {
 extern long (*STUB_stop_elevator)(void);
 long stop_elevator(void) {
     printk(KERN_ALERT "stop_elevator called\n");
-    elev_state = OFFLINE;
+    // elev_state = OFFLINE;
     // DROP REST OF PASSENGERS OFF
+    final_unload = true;
     return 0;
 }
 
@@ -426,6 +429,7 @@ int runElevator(void *data){
             case OFFLINE:
                 break;
             case IDLE:
+
                 if (isWaitingOne(current_floor)){
                     next_state = UP;
                     elev_state = LOADING;
@@ -475,6 +479,10 @@ int runElevator(void *data){
                     elev_state = IDLE;
                 } else {
                     elev_state = next_state;
+                }
+
+                if (final_unload){
+                    elev_state = OFFLINE;
                 }
 
                 break;
