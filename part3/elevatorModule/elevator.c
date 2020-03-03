@@ -410,7 +410,6 @@ int doUnload(void){
     // Temporary pointers
     struct list_head *temp, *t;
     struct Person * passenger;
-    mutex_lock_interruptible(&elev_pass_mutex);
     // Iterate through elev_passengers, storing ptr for each Person strcut in temp. Idk what dummy does.
     list_for_each_safe(temp, t, &elev_passengers) {
         passenger = list_entry(temp, struct Person, list);
@@ -419,7 +418,6 @@ int doUnload(void){
             return 1;
         }
     }  
-    mutex_unlock(&elev_pass_mutex);
     return 0;
 }
 
