@@ -194,6 +194,7 @@ long start_elevator(void) {
         return 1;
     }
     elev_state = IDLE;
+    final_unload = false;
     return 0;
 }
 
