@@ -479,6 +479,8 @@ int runElevator(void *data){
 
                 if (num_passengers == 0 && !isWaitingAll()){
                     elev_state = IDLE;
+                } else if (num_passengers == 0 && final_unload){
+                    elev_state = OFFLINE;
                 } else {
                     elev_state = next_state;
                 }
