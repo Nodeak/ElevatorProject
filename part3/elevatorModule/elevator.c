@@ -474,7 +474,7 @@ int runElevator(void *data){
                 if (doUnload())
                     checkUnload(current_floor);
                 
-                if (isWaitingOne(current_floor))
+                if (isWaitingOne(current_floor) && !final_unload)
                     checkLoad(current_floor);
 
                 if (num_passengers == 0 && !isWaitingAll()){
